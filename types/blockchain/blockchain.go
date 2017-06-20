@@ -1,28 +1,30 @@
 package blockchain
 
 import(
-	"container/list"
 	"github.com/LaughingCabbage/goLinks/types/block"
-	"math/cmplx"
+
+	"fmt"
 )
 
-var index int
-var Blockchain *list.List
+type Blockchain []block.Block
 
-func New() {
-	//create a new blockchain starting with a genesis block
-	index = 0
-	Blockchain = list.New()
-	blk := block.New(index, "GENESIS DATA", nil)
-	Blockchain.PushBack(blk)
+
+func New() Blockchain {
+	var blkchain Blockchain
+	//create genesis block and append it as root to blockchain
+	blk := block.New(0, "GENESIS DATA", nil)
+	blkchain = append(blkchain, blk)
+	return blkchain
 }
 
-func Add(data string) {
-	for i := Blockchain.Front(); i != index; i++{
+func (blockchain *Blockchain) Add(data string){
+	blk := block.New(len(*blockchain), data, (*blockchain)[len(*blockchain)-1].Blockhash)
+	*blockchain = append(*blockchain, blk)
+}
 
+func (blockchain Blockchain) Print(){
+	for i := 0; i < len(blockchain); i++{
+		fmt.Println(i)
+		fmt.Println(blockchain[i])
 	}
-	index++
-	blk := block.New(index, data, Blockchain.)
-	block.Index = index
-	Blockchain.PushBack(block)
 }
