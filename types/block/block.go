@@ -1,7 +1,6 @@
 package block
 
 import (
-	"fmt"
 	"time"
 	"crypto/sha512"
 	"bytes"
@@ -17,15 +16,21 @@ type Block struct {
 	Blockhash  []uint8
 }
 
-func New() Block {
-	blk := Block{-1, time.Now(), "TEST DATAA", nil, nil}
-	hash := sha512.New()
-	hash.Write([]byte(blk.Data))
-	blk.Parenthash = hash.Sum(nil)
-	hash = sha512.New()
-	hash.Write(EncodeGob(blk))
-	blk.Blockhash = hash.Sum(nil)
-	fmt.Println(blk)
+
+
+func New(index int, data string, parent []uint8) Block {
+	blk := Block{index, time.Now(), data, nil, nil}
+	//handle genesis block case
+	if index == 0 {
+		parenthash := sha512.New()
+		parenthash.Write([]byte(blk.Data))
+		blk.Parenthash = parenthash.Sum(nil)
+	}else{
+		blk.Parenthash = parent
+	}
+	blkhash := sha512.New()
+	blkhash.Write(EncodeGob(blk))
+	blk.Blockhash = blkhash.Sum(nil)
 	return blk
 }
 
