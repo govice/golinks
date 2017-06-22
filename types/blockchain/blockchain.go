@@ -4,6 +4,7 @@ import(
 	"github.com/LaughingCabbage/goLinks/types/block"
 
 	"fmt"
+	"errors"
 )
 
 type Blockchain []block.Block
@@ -27,4 +28,17 @@ func (blockchain Blockchain) Print(){
 		fmt.Println(i)
 		fmt.Println(blockchain[i])
 	}
+}
+
+func (blockchain Blockchain) Validate() error{
+	if(len(blockchain) < 2){
+		return errors.New("invalid attempt to validate genesis block")
+	}
+	for i := 1; i < len(blockchain); i++{
+		err := block.Validate(blockchain[i-1], blockchain[i])
+		if err != nil{
+			return errors.New("blockchain is invalid")
+		}
+	}
+	return nil
 }
