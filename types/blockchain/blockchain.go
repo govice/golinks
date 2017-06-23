@@ -5,6 +5,9 @@ import(
 
 	"fmt"
 	"errors"
+	"bytes"
+	"encoding/gob"
+	"log"
 )
 
 type Blockchain []block.Block
@@ -41,4 +44,15 @@ func (blockchain Blockchain) Validate() error{
 		}
 	}
 	return nil
+}
+
+func (blockchain Blockchain) EncodeChain() []byte{
+	buffer := bytes.Buffer{}
+	chainGob := gob.NewEncoder(&buffer)
+	err := chainGob.Encode(blockchain)
+	if err != nil{
+		log.Fatal("failed to encode blockchain")
+	}
+	return buffer.Bytes()
+
 }
