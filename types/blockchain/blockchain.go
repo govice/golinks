@@ -40,6 +40,7 @@ func (blockchain Blockchain) Validate() error{
 	for i := 1; i < len(blockchain); i++{
 		err := block.Validate(blockchain[i-1], blockchain[i])
 		if err != nil{
+			fmt.Println(err)
 			return errors.New("blockchain is invalid")
 		}
 	}
@@ -54,5 +55,35 @@ func (blockchain Blockchain) EncodeChain() []byte{
 		log.Fatal("failed to encode blockchain")
 	}
 	return buffer.Bytes()
+}
+
+
+//it should be implied that the longest chain should be the most recent valid chain
+//this function should only take accept validated blockchains
+func GetValidChain(current, new Blockchain) Blockchain {
+	if len(new) > len(current){
+		return new
+	}else{
+		return current
+	}
+}
+
+/*
+func (blockchain *Blockchain) DecodeChain(data []byte) error {
+	buffer := bytes.NewBuffer(data)
+	buffer.Write(data)
+	chain := gob.NewDecoder(&buffer)
+	err := chain.Decode(&chain)
+	fmt.Println(blockchain)
+	return err
+}
+*/
+
+/*
+func (blockchain Blockchain) MarshallBinary() ([]byte, error) {
+	var buffer bytes.Buffer
+	fmt.Fprintln(buffer, &blockchain)
+	return buffer.Bytes(), nil
 
 }
+*/
