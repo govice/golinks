@@ -1,18 +1,20 @@
+//Package blockchain provides handles to create and maintain a blockchain
 package blockchain
 
-import(
+import (
 	"github.com/LaughingCabbage/goLinks/types/block"
 
-	"fmt"
-	"errors"
 	"bytes"
 	"encoding/gob"
+	"errors"
+	"fmt"
 	"log"
 )
 
+//Blockchain type implements an array of blocks.
 type Blockchain []block.Block
 
-
+//New returns a new blockchain and initializes the chain's genesis block.
 func New() Blockchain {
 	var blkchain Blockchain
 	//create genesis block and append it as root to blockchain
@@ -21,25 +23,28 @@ func New() Blockchain {
 	return blkchain
 }
 
-func (blockchain *Blockchain) Add(data string){
+//Add adds a new block to the chain given a payload.
+func (blockchain *Blockchain) Add(data string) {
 	blk := block.New(len(*blockchain), data, (*blockchain)[len(*blockchain)-1].Blockhash)
 	*blockchain = append(*blockchain, blk)
 }
 
-func (blockchain Blockchain) Print(){
-	for i := 0; i < len(blockchain); i++{
+//Print outputs the blockchain to standard output.
+func (blockchain Blockchain) Print() {
+	for i := 0; i < len(blockchain); i++ {
 		fmt.Println(i)
 		fmt.Println(blockchain[i])
 	}
 }
 
-func (blockchain Blockchain) Validate() error{
-	if(len(blockchain) < 2){
+//Validate iterates through blocks and calls the block.validate method for the length of the chain.
+func (blockchain Blockchain) Validate() error {
+	if len(blockchain) < 2 {
 		return errors.New("invalid attempt to validate genesis block")
 	}
-	for i := 1; i < len(blockchain); i++{
+	for i := 1; i < len(blockchain); i++ {
 		err := block.Validate(blockchain[i-1], blockchain[i])
-		if err != nil{
+		if err != nil {
 			fmt.Println(err)
 			return errors.New("blockchain is invalid")
 		}
@@ -47,43 +52,22 @@ func (blockchain Blockchain) Validate() error{
 	return nil
 }
 
-func (blockchain Blockchain) EncodeChain() []byte{
+func (blockchain Blockchain) encodeChain() []byte {
 	buffer := bytes.Buffer{}
 	chainGob := gob.NewEncoder(&buffer)
 	err := chainGob.Encode(blockchain)
-	if err != nil{
+	if err != nil {
 		log.Fatal("failed to encode blockchain")
 	}
 	return buffer.Bytes()
 }
 
-
-//it should be implied that the longest chain should be the most recent valid chain
+//GetValidChain returns the longest valid chain given two blockchains.
+// it should be implied that the longest chain should be the most recent valid chain
 //this function should only take accept validated blockchains
 func GetValidChain(current, new Blockchain) Blockchain {
-	if len(new) > len(current){
+	if len(new) > len(current) {
 		return new
-	}else{
-		return current
 	}
+	return current
 }
-
-/*
-func (blockchain *Blockchain) DecodeChain(data []byte) error {
-	buffer := bytes.NewBuffer(data)
-	buffer.Write(data)
-	chain := gob.NewDecoder(&buffer)
-	err := chain.Decode(&chain)
-	fmt.Println(blockchain)
-	return err
-}
-*/
-
-/*
-func (blockchain Blockchain) MarshallBinary() ([]byte, error) {
-	var buffer bytes.Buffer
-	fmt.Fprintln(buffer, &blockchain)
-	return buffer.Bytes(), nil
-
-}
-*/
