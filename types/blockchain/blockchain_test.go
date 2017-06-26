@@ -1,7 +1,6 @@
 package blockchain
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -42,20 +41,10 @@ func TestBinaryConverter(t *testing.T) {
 	_ = blkchain.Validate()
 
 	bin := blkchain.encodeChain()
-	fmt.Println(blkchain)
 
 	var out Blockchain
 	err := out.decodeChain(bin)
-	fmt.Println(out)
 	if err != nil {
 		t.Error("Invalid decode Blockchain", err)
 	}
-
-	/*
-		original := []byte(blkchain)
-		received := []byte(out)
-		if !bytes.Equal(original, received) {
-			t.Error("blockcahin deserialize does not match origin")
-		}
-	*/
 }
