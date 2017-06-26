@@ -6,6 +6,7 @@ import (
 	"crypto/sha512"
 	"errors"
 	"fmt"
+	"hash"
 	"log"
 	"time"
 )
@@ -15,34 +16,34 @@ type Block struct {
 	Index      int
 	Timestamp  time.Time
 	Data       string
-	Parenthash []byte
-	Blockhash  []byte
+	Parenthash hash.Hash
+	Blockhash  hash.Hash
 }
 
 //New creates a new blockchain block and initializes index, payload data, and hashes.
-func New(index int, data string, parent []uint8) Block {
+func New(index int, data string, parent hash.Hash) Block {
 	blk := Block{index, time.Now(), data, nil, nil}
 	//handle genesis block case
 	if index == 0 {
 		parenthash := sha512.New()
 		parenthash.Write([]byte(blk.Data))
-		blk.Parenthash = parenthash.Sum(nil)
+		//blk.Parenthash = parenthash.Sum(nil)
 	} else {
 		blk.Parenthash = parent
 	}
-	blk.Blockhash = Hash(blk)
+	blk.Blockhash = blk.Hash()
 	return blk
 }
 
 //Hash calculates and returns a SHA512 hash for the block.
-func Hash(block Block) []uint8 {
+func (block Block) Hash() hash.Hash {
 	blkhash := sha512.New()
-	buff, err := block.marshalBinary()
+	buff, err := block.MarshalBinary()
 	if err != nil {
 		log.Fatal("Failed to hash block")
 	}
 	blkhash.Write(buff)
-	return blkhash.Sum(nil)
+	return blkhash
 }
 
 //Validate compares two blocks to verify their parent child relationship.
@@ -50,28 +51,26 @@ func Validate(prev, current Block) error {
 	if prev.Index+1 != current.Index {
 		return errors.New("block indexes do not correlate")
 	}
-	if !bytes.Equal(prev.Blockhash, current.Parenthash) {
+	if !bytes.Equal(prev.Blockhash.Sum(nil), current.Parenthash.Sum(nil)) {
 		return errors.New("block parent child hashes do not correlate")
 	}
-	if !bytes.Equal(Hash(current), current.Blockhash) {
-		fmt.Println("Hash: ", Hash(current))
-		fmt.Println("current: ", current.Blockhash)
+	h := current.Hash().Sum(nil)
+	if !bytes.Equal(h, current.Blockhash.Sum(nil)) {
 		return errors.New("current block's hash is not valid")
 	}
 	return nil
 }
 
 //MarshalBinary serializes a block structure and returns the blocks byte sequence.
-func (block Block) marshalBinary() ([]byte, error) {
+func (block Block) MarshalBinary() ([]byte, error) {
 	var buffer bytes.Buffer
 	fmt.Fprintln(&buffer, block.Index, block.Timestamp, block.Data, block.Parenthash)
 	return buffer.Bytes(), nil
 }
 
-/*
+//UnmarshalBinary decodes a byte buffer into a block.
 func (block *Block) UnmarshalBinary(data []byte) error {
 	buffer := bytes.NewBuffer(data)
-	_, err := fmt.Fscanln(buffer, &block.Index, &block.Timestamp, &block.Data, &block.Parenthash)
+	_, err := fmt.Fscanln(buffer, &block.Index, &block.Timestamp, &block.Data, block.Parenthash)
 	return err
 }
-*/
