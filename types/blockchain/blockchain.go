@@ -31,9 +31,9 @@ func (blockchain *Blockchain) Add(data string) {
 
 //Print outputs the blockchain to standard output.
 func (blockchain Blockchain) Print() {
+	fmt.Println("Printing blockchain...")
 	for i := 0; i < len(blockchain); i++ {
-		fmt.Println(i)
-		fmt.Println(blockchain[i])
+		fmt.Println("Block ", i, ": ", blockchain[i])
 	}
 }
 
@@ -45,7 +45,6 @@ func (blockchain Blockchain) Validate() error {
 	for i := 1; i < len(blockchain); i++ {
 		err := block.Validate(blockchain[i-1], blockchain[i])
 		if err != nil {
-			fmt.Println(err)
 			return errors.New("blockchain is invalid")
 		}
 	}
@@ -60,6 +59,14 @@ func (blockchain Blockchain) encodeChain() []byte {
 		log.Fatal("failed to encode blockchain")
 	}
 	return buffer.Bytes()
+}
+
+func (blockchain *Blockchain) decodeChain(data []byte) error {
+	buffer := bytes.Buffer{}
+	buffer.Write(data)
+	dec := gob.NewDecoder(&buffer)
+	err := dec.Decode(blockchain)
+	return err
 }
 
 //GetValidChain returns the longest valid chain given two blockchains.
