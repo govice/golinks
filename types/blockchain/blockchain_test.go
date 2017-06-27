@@ -14,6 +14,7 @@ func TestValidChain(t *testing.T) {
 	}
 }
 
+//TestGetValidChain creates two different blockchains of different sizes and attempts to validate the chain.
 func TestGetValidChain(t *testing.T) {
 
 	blkchain := New()
@@ -32,14 +33,18 @@ func TestGetValidChain(t *testing.T) {
 	if validChain[0].Data != blkchain2[0].Data {
 		t.Error("Valid block was not returned")
 	}
+
+	if Equal(blkchain, blkchain2) {
+		t.Error("Validity check for blockchain binaries failed")
+	}
 }
 
+//TestBinaryConverter checks for proper encoding and decoding of blockchain gobs to buffer
 func TestBinaryConverter(t *testing.T) {
 	blkchain := New()
 	blkchain.Add("NewSTring")
 	blkchain.Add("NewSTring")
 	_ = blkchain.Validate()
-
 	bin := blkchain.encodeChain()
 
 	var out Blockchain
@@ -47,4 +52,28 @@ func TestBinaryConverter(t *testing.T) {
 	if err != nil {
 		t.Error("Invalid decode Blockchain", err)
 	}
+}
+
+func TestEqual(t *testing.T) {
+	//construct two chains with genesis blocks
+	chainA := New()
+	var chainB Blockchain
+
+	//Test with equal blocks
+	chainA.Add("NewSTring")
+	chainA.Add("NewSTring")
+
+	chainB = chainA
+
+	//Test equality with two equal blockchains
+	if !Equal(chainA, chainB) {
+		t.Error("equivilent chains are not equal")
+	}
+
+	//Test equality with additional block
+	chainB.Add("data")
+	if Equal(chainA, chainB) {
+		t.Error("unequivilent chains are testing as equivilent")
+	}
+
 }
