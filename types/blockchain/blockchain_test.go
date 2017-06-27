@@ -1,6 +1,7 @@
 package blockchain
 
 import (
+	"os"
 	"testing"
 )
 
@@ -76,4 +77,33 @@ func TestEqual(t *testing.T) {
 		t.Error("unequivilent chains are testing as equivilent")
 	}
 
+}
+
+func TestInputOutput(t *testing.T) {
+	//Test saving to file
+	blkchain := New()
+	blkchain.Add("NewSTring")
+	blkchain.Add("NewSTring")
+	err := blkchain.Save("testfile")
+	if err != nil {
+		t.Error("failed to save blockchain ", err)
+	}
+
+	//Test loading from file
+	var blkchainB Blockchain
+	err = blkchainB.Load("testfile")
+	if err != nil {
+		t.Error("failed to load blockchain", err)
+	}
+
+	//Test validity of read chain
+	if !Equal(blkchain, blkchainB) {
+		t.Error("read blockchain does not match saved chain")
+	}
+
+	//Cleanup test file
+	err = os.Remove("testfile.dat")
+	if err != nil {
+		t.Error("failed to cleanup IO test file")
+	}
 }
