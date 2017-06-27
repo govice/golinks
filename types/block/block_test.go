@@ -39,3 +39,21 @@ func TestBinaryConverters(t *testing.T) {
 		t.Error("Block hashes do not corrolate")
 	}
 }
+
+func TestEqual(t *testing.T) {
+
+	//Test equal blocks
+	blkA := New(0, "data", nil)
+	blkB := blkA
+
+	if !Equal(blkA, blkB) {
+		t.Error("Block equivilents do not match")
+	}
+
+	//Test unequal blocks
+	blkC := New(1, "str", nil)
+
+	if Equal(blkA, blkC) {
+		t.Error("Unequivilent blocks returning as matching")
+	}
+}
