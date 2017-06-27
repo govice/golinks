@@ -8,6 +8,7 @@ import (
 	"encoding/gob"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 )
 
@@ -90,4 +91,17 @@ func Equal(chainA, chainB Blockchain) bool {
 		}
 	}
 	return true
+}
+
+func (blockchain Blockchain) Save(name string) error {
+	filename := name + ".dat"
+	err := ioutil.WriteFile(filename, blockchain.encodeChain(), 0600)
+	return err
+}
+
+func (blockchain *Blockchain) Load(name string) error {
+	filename := name + ".dat"
+	data, err := ioutil.ReadFile(filename)
+	blockchain.decodeChain(data)
+	return err
 }
