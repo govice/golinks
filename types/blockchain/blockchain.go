@@ -78,3 +78,16 @@ func GetValidChain(current, new Blockchain) Blockchain {
 	}
 	return current
 }
+
+func Equal(chainA, chainB Blockchain) bool {
+	if len(chainA) != len(chainB) {
+		return false
+	}
+
+	for i := 0; i < len(chainA); i++ {
+		if !block.Equal(chainA[i], chainB[i]) {
+			return false
+		}
+	}
+	return true
+}
