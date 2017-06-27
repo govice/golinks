@@ -61,3 +61,11 @@ func Validate(prev, current Block) error {
 func (block Block) PrintBlock() {
 	fmt.Println("Block: ", block.Index, block.Timestamp, block.Data, block.Parenthash, block.Blockhash)
 }
+
+//Equal checks if the hash of two blocks are equal.
+func Equal(blockA, blockB Block) bool {
+	if !bytes.Equal(blockA.Hash(), blockB.Hash()) {
+		return false
+	}
+	return true
+}
