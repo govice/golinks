@@ -15,7 +15,8 @@ type Client struct {
 }
 
 //New creates a new client and provides the server address.
-func (client *Client) New(serverAddr, serverPort string) {
+func New(serverAddr, serverPort string) Client {
+	var client Client
 	client.serverAddress = serverAddr
 	client.serverPort = serverPort
 	var err error
@@ -23,7 +24,8 @@ func (client *Client) New(serverAddr, serverPort string) {
 	if err != nil {
 		log.Fatal("failed to generate RSA private key ", err)
 	}
-
+	return client
+	
 	//entropy := []byte("laughingcabbage%$#@")
 	//label := []byte("message")
 
