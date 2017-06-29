@@ -1,29 +1,18 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"log"
-	"net"
-	"os"
+	"github.com/LaughingCabbage/goLinks/network/client"
 )
 
 func main() {
-	fmt.Println("executing client...")
-
-	conn, err := net.Dial("tcp", "localhost:8080")
+	peer := client.New("localhost", "8080")
+	err := peer.Connect()
 	if err != nil {
-		log.Fatal("failed to connect ", err)
+		panic(err)
 	}
 
 	for {
-		reader := bufio.NewReader(os.Stdin)
-		fmt.Print("text to send: ")
-		data, _ := reader.ReadString('\n')
-
-		fmt.Fprintf(conn, data+"\n")
-
-		msg, _ := bufio.NewReader(conn).ReadString('\n')
-		fmt.Print("Server reply: " + msg)
+		peer.Message("TEST MESSAGE")
+		peer.Listen()
 	}
 }
