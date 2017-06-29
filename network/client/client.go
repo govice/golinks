@@ -1,14 +1,19 @@
 package client
 
 import (
+	"bufio"
 	"crypto/rand"
 	"crypto/rsa"
+	"errors"
+	"fmt"
 	"log"
+	"net"
 )
 
 type Client struct {
 	serverAddress string
 	serverPort    string
+	serverConn    net.Conn
 	privateKey    *rsa.PrivateKey
 	publicKey     *rsa.PublicKey
 	serverKey     *rsa.PublicKey
@@ -25,7 +30,6 @@ func New(serverAddr, serverPort string) Client {
 		log.Fatal("failed to generate RSA private key ", err)
 	}
 	return client
-	
 	//entropy := []byte("laughingcabbage%$#@")
 	//label := []byte("message")
 
@@ -38,4 +42,40 @@ func New(serverAddr, serverPort string) Client {
 		}
 		fmt.Println("ciphertext ", ciphertext)
 	*/
+}
+
+func (client *Client) Connect() error {
+	var err error
+	client.serverConn, err = net.Dial("tcp", lookupServer())
+	if err != nil {
+		return errors.New("failed to dial server")
+	}
+	return nil
+
+}
+
+func lookupServer() string {
+	return "localhost:8080"
+}
+
+func (client Client) Message(message string) {
+	if client.serverConn == nil {
+		log.Fatal("client's server connection not set")
+		return
+	}
+	fmt.Println(message)
+	fmt.Fprintf(client.serverConn, message+"\n")
+
+}
+
+func (client Client) Listen() {
+	if client.serverConn == nil {
+		return
+	}
+	message, _ := bufio.NewReader(client.serverConn).ReadString('\n')
+	fmt.Print("Server respone: " + message)
+}
+
+func (client Client) Print() {
+	fmt.Print(client)
 }
