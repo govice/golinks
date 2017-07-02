@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"log"
 	"net"
+
+	"github.com/LaughingCabbage/goLinks/network"
 )
 
 type Client struct {
@@ -63,7 +65,6 @@ func (client Client) Message(message string) {
 		log.Fatal("client's server connection not set")
 		return
 	}
-	fmt.Println(message)
 	fmt.Fprintf(client.serverConn, message+"\n")
 
 }
@@ -78,4 +79,13 @@ func (client Client) Listen() {
 
 func (client Client) Print() {
 	fmt.Print(client)
+}
+
+func (client *Client) newKey() error {
+	var err error
+	client.privateKey, err = network.GenerateKeyPair()
+	if err != nil {
+		log.Fatalf("failed to assign key to client ", err)
+	}
+	return err
 }
