@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"log"
 	"net"
 )
@@ -17,9 +16,6 @@ func Listen() {
 	if err != nil {
 		log.Panic("listner returned error attmepting to accept connection")
 	}
-
-	fmt.Printf("connection type %T\n", connection)
-	//go handleConnection(conn)
 
 	//}
 	connection.Close()
