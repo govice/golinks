@@ -13,18 +13,21 @@ import (
 type Block struct {
 	Index      int
 	Timestamp  time.Time
-	Data       string
+	Data       []byte
 	Parenthash []byte
 	Blockhash  []byte
 }
 
 //New creates a new blockchain block and initializes index, payload data, and hashes.
-func New(index int, data string, parent []byte) Block {
+func New(index int, data []byte, parent []byte) Block {
 	blk := Block{index, time.Now(), data, nil, nil}
 	//handle genesis block case
 	if index == 0 {
 		parenthash := sha512.New()
-		parenthash.Write([]byte(blk.Data))
+		_, err := parenthash.Write(blk.Data)
+		if err != nil {
+			panic("Failed to write hash")
+		}
 		blk.Parenthash = parenthash.Sum(nil)
 	} else {
 		blk.Parenthash = parent
@@ -38,7 +41,10 @@ func (block Block) Hash() []byte {
 	blkhash := sha512.New()
 	var buffer bytes.Buffer
 	fmt.Fprintln(&buffer, block.Index, block.Timestamp, block.Data, block.Parenthash)
-	blkhash.Write(buffer.Bytes())
+	_, err := blkhash.Write(buffer.Bytes())
+	if err != nil {
+		panic("failed to write to hash buffer")
+	}
 	return blkhash.Sum(nil)
 }
 
@@ -64,8 +70,5 @@ func (block Block) PrintBlock() {
 
 //Equal checks if the hash of two blocks are equal.
 func Equal(blockA, blockB Block) bool {
-	if !bytes.Equal(blockA.Hash(), blockB.Hash()) {
-		return false
-	}
-	return true
+	return bytes.Equal(blockA.Hash(), blockB.Hash())
 }
