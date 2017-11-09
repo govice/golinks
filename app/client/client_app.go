@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 
@@ -16,25 +15,31 @@ const (
 )
 
 func main() {
-	//gopherType := flag.String("command", "cmd", "This is the help menu")
-
-	goph := flag.String("word", "bar", "a string")
-
-	//flag.StringVar(gopherType, "gopher_type", defaultGopher, usage)
-	//flag.StringVar(gopherType, "g", defaultGopher, usage+" (shorthand)")
-	flag.Parse()
-	fmt.Println(flag.Args())
-	fmt.Println(*goph)
-	//fmt.Println(stringFlag)
 	app := cli.NewApp()
-	app.Name = "greet"
-	app.Usage = "fight the loneliness!"
+	app.Name = "goLinks Client"
+	app.Usage = "usage"
+
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:  "lang",
+			Value: "english",
+			Usage: "language for greeting",
+		},
+	}
 	app.Action = func(c *cli.Context) error {
-		fmt.Println("Hello friend!")
+		name := "Kev"
+		if c.NArg() > 0 {
+			name = c.Args().Get(0)
+		}
+		if c.String("lang") == "spanish" {
+			fmt.Println("Hola", name)
+		} else {
+			fmt.Println("Hello", name)
+		}
 		return nil
 	}
-
 	app.Run(os.Args)
+
 }
 
 /*
