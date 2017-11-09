@@ -1,3 +1,5 @@
+//TODO create block tree
+
 //Package blockchain provides handles to create and maintain a blockchain
 package blockchain
 
