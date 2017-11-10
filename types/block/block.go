@@ -20,7 +20,7 @@ type Block struct {
 
 //New creates a new blockchain block and initializes index, payload data, and hashes.
 func New(index int, data []byte, parent []byte) Block {
-	blk := Block{index, time.Now(), data, nil, nil}
+	blk := Block{index, time.Now().Round(0), data, nil, nil}
 	//handle genesis block case
 	if index == 0 {
 		parenthash := sha512.New()
