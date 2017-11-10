@@ -1,14 +1,15 @@
 package blockchain
 
 import (
+	"bytes"
 	"os"
 	"testing"
 )
 
 func TestValidChain(t *testing.T) {
 	blkchain := New()
-	blkchain.Add("NewSTring")
-	blkchain.Add("NewSTring")
+	blkchain.Add([]byte("NewSTring"))
+	blkchain.Add([]byte("NewSTring"))
 	err := blkchain.Validate()
 	if err != nil {
 		t.Error("Could not validate blockchain")
@@ -19,19 +20,24 @@ func TestValidChain(t *testing.T) {
 func TestGetValidChain(t *testing.T) {
 
 	blkchain := New()
-	blkchain.Add("NewSTring")
-	blkchain.Add("NewSTring")
-	_ = blkchain.Validate()
-
+	blkchain.Add([]byte("NewSTring"))
+	blkchain.Add([]byte("NewSTring"))
+	err := blkchain.Validate()
+	if err != nil {
+		t.Error("Failed to Valiate Blockchain")
+	}
 	blkchain2 := New()
-	blkchain2.Add("chain2str")
-	blkchain2.Add("chain2str")
-	blkchain2.Add("data")
-	blkchain2.Validate()
+	blkchain2.Add([]byte("chain2str"))
+	blkchain2.Add([]byte("chain2str"))
+	blkchain2.Add([]byte("data"))
+	err = blkchain2.Validate()
+	if err != nil {
+		t.Error("Failed to Valiate Blockchain")
+	}
 
-	validChain := GetValidChain(blkchain, blkchain2)
+	//validChain := GetValidChain(blkchain, blkchain2)
 
-	if validChain[0].Data != blkchain2[0].Data {
+	if !bytes.Equal(blkchain[0].Data, blkchain2[0].Data) {
 		t.Error("Valid block was not returned")
 	}
 
@@ -43,8 +49,8 @@ func TestGetValidChain(t *testing.T) {
 //TestBinaryConverter checks for proper encoding and decoding of blockchain gobs to buffer
 func TestBinaryConverter(t *testing.T) {
 	blkchain := New()
-	blkchain.Add("NewSTring")
-	blkchain.Add("NewSTring")
+	blkchain.Add([]byte("NewSTring"))
+	blkchain.Add([]byte("NewSTring"))
 	_ = blkchain.Validate()
 	bin := blkchain.encodeChain()
 
@@ -61,8 +67,8 @@ func TestEqual(t *testing.T) {
 	var chainB Blockchain
 
 	//Test with equal blocks
-	chainA.Add("NewSTring")
-	chainA.Add("NewSTring")
+	chainA.Add([]byte("NewSTring"))
+	chainA.Add([]byte("NewSTring"))
 
 	chainB = chainA
 
@@ -72,7 +78,7 @@ func TestEqual(t *testing.T) {
 	}
 
 	//Test equality with additional block
-	chainB.Add("data")
+	chainB.Add([]byte("data"))
 	if Equal(chainA, chainB) {
 		t.Error("unequivilent chains are testing as equivilent")
 	}
@@ -82,8 +88,8 @@ func TestEqual(t *testing.T) {
 func TestInputOutput(t *testing.T) {
 	//Test saving to file
 	blkchain := New()
-	blkchain.Add("NewSTring")
-	blkchain.Add("NewSTring")
+	blkchain.Add([]byte("NewSTring"))
+	blkchain.Add([]byte("NewSTring"))
 	err := blkchain.Save("testfile")
 	if err != nil {
 		t.Error("failed to save blockchain ", err)

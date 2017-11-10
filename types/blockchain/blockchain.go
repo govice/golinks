@@ -21,13 +21,13 @@ type Blockchain []block.Block
 func New() Blockchain {
 	var blkchain Blockchain
 	//create genesis block and append it as root to blockchain
-	blk := block.New(0, "GENESIS DATA", nil)
+	blk := block.New(0, []byte("GENESIS DATA"), nil)
 	blkchain = append(blkchain, blk)
 	return blkchain
 }
 
 //Add adds a new block to the chain given a payload.
-func (blockchain *Blockchain) Add(data string) {
+func (blockchain *Blockchain) Add(data []byte) {
 	blk := block.New(len(*blockchain), data, (*blockchain)[len(*blockchain)-1].Blockhash)
 	*blockchain = append(*blockchain, blk)
 }
@@ -82,6 +82,7 @@ func GetValidChain(current, new Blockchain) Blockchain {
 	return current
 }
 
+//Equal tests the equality of two blockchains
 func Equal(chainA, chainB Blockchain) bool {
 	if len(chainA) != len(chainB) {
 		return false
@@ -95,15 +96,23 @@ func Equal(chainA, chainB Blockchain) bool {
 	return true
 }
 
+//Save saves the blockchain to a .dat file
 func (blockchain Blockchain) Save(name string) error {
 	filename := name + ".dat"
 	err := ioutil.WriteFile(filename, blockchain.encodeChain(), 0600)
 	return err
 }
 
+//Load loads a blockchain from a .dat file and initializes the blockchain
 func (blockchain *Blockchain) Load(name string) error {
 	filename := name + ".dat"
 	data, err := ioutil.ReadFile(filename)
-	blockchain.decodeChain(data)
+	if err != nil {
+		panic(err)
+	}
+	err = blockchain.decodeChain(data)
+	if err != nil {
+		panic(err)
+	}
 	return err
 }
