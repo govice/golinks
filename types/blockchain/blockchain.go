@@ -4,14 +4,14 @@
 package blockchain
 
 import (
+	"log"
+
 	"github.com/LaughingCabbage/goLinks/types/block"
 
-	"bytes"
 	"encoding/gob"
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"log"
+	"os"
 )
 
 //Blockchain type implements an array of blocks.
@@ -54,6 +54,7 @@ func (blockchain Blockchain) Validate() error {
 	return nil
 }
 
+/*
 func (blockchain Blockchain) encodeChain() []byte {
 	buffer := bytes.Buffer{}
 	chainGob := gob.NewEncoder(&buffer)
@@ -64,13 +65,14 @@ func (blockchain Blockchain) encodeChain() []byte {
 	return buffer.Bytes()
 }
 
-func (blockchain *Blockchain) decodeChain(data []byte) error {
+func (blockchain *Blockchain) decodeChain() error {
 	buffer := bytes.Buffer{}
 	buffer.Write(data)
 	dec := gob.NewDecoder(&buffer)
 	err := dec.Decode(blockchain)
 	return err
 }
+*/
 
 //GetValidChain returns the longest valid chain given two blockchains.
 // it should be implied that the longest chain should be the most recent valid chain
@@ -90,6 +92,9 @@ func Equal(chainA, chainB Blockchain) bool {
 
 	for i := 0; i < len(chainA); i++ {
 		if !block.Equal(chainA[i], chainB[i]) {
+			log.Println("Chains not equal at blocks:")
+			log.Println(chainA[i])
+			log.Println(chainB[i])
 			return false
 		}
 	}
@@ -98,19 +103,35 @@ func Equal(chainA, chainB Blockchain) bool {
 
 //Save saves the blockchain to a .dat file
 func (blockchain Blockchain) Save(name string) error {
-	filename := name + ".dat"
-	err := ioutil.WriteFile(filename, blockchain.encodeChain(), 0600)
+	file, err := os.OpenFile(name+".dat", os.O_RDWR|os.O_CREATE, 0755)
+	if err != nil {
+		panic(err)
+	}
+	encoder := gob.NewEncoder(file)
+	err = encoder.Encode(blockchain)
+	if err != nil {
+		panic(err)
+	}
+	err = file.Close()
+	if err != nil {
+		panic(err)
+	}
+	//err := ioutil.WriteFile(filename, blockchain.encodeChain(), 0600)
 	return err
 }
 
 //Load loads a blockchain from a .dat file and initializes the blockchain
 func (blockchain *Blockchain) Load(name string) error {
-	filename := name + ".dat"
-	data, err := ioutil.ReadFile(filename)
+	file, err := os.Open(name + ".dat")
 	if err != nil {
 		panic(err)
 	}
-	err = blockchain.decodeChain(data)
+	decoder := gob.NewDecoder(file)
+	err = decoder.Decode(blockchain)
+	if err != nil {
+		panic(err)
+	}
+	err = file.Close()
 	if err != nil {
 		panic(err)
 	}

@@ -2,6 +2,7 @@ package blockchain
 
 import (
 	"bytes"
+	"log"
 	"os"
 	"testing"
 )
@@ -46,6 +47,7 @@ func TestGetValidChain(t *testing.T) {
 	}
 }
 
+/*
 //TestBinaryConverter checks for proper encoding and decoding of blockchain gobs to buffer
 func TestBinaryConverter(t *testing.T) {
 	blkchain := New()
@@ -60,6 +62,7 @@ func TestBinaryConverter(t *testing.T) {
 		t.Error("Invalid decode Blockchain", err)
 	}
 }
+*/
 
 func TestEqual(t *testing.T) {
 	//construct two chains with genesis blocks
@@ -74,22 +77,23 @@ func TestEqual(t *testing.T) {
 
 	//Test equality with two equal blockchains
 	if !Equal(chainA, chainB) {
-		t.Error("equivilent chains are not equal")
+		t.Error("equal chains are not equal")
 	}
 
 	//Test equality with additional block
 	chainB.Add([]byte("data"))
 	if Equal(chainA, chainB) {
-		t.Error("unequivilent chains are testing as equivilent")
+		t.Error("unequal chains are testing as equal")
 	}
 
 }
 
 func TestInputOutput(t *testing.T) {
+	log.Println("Testing I/O")
 	//Test saving to file
 	blkchain := New()
 	blkchain.Add([]byte("NewSTring"))
-	blkchain.Add([]byte("NewSTring"))
+	blkchain.Add([]byte("NewSTring2"))
 	err := blkchain.Save("testfile")
 	if err != nil {
 		t.Error("failed to save blockchain ", err)
@@ -110,6 +114,6 @@ func TestInputOutput(t *testing.T) {
 	//Cleanup test file
 	err = os.Remove("testfile.dat")
 	if err != nil {
-		t.Error("failed to cleanup IO test file")
+		t.Error("failed to cleanup IO test file", err)
 	}
 }
