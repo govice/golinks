@@ -59,11 +59,10 @@ func (blockchain Blockchain) GetCurrentHash() []byte {
 }
 
 //UpdateChain returns the longest valid chain given two blockchains.
-// it should be implied that the longest chain should be the most recent valid chain
-//this function should only take accept validated blockchains
+// it should be implied that the longest chain should have the most recent block
 func (blockchain *Blockchain) UpdateChain(new Blockchain) error {
 	//Chain is longer and needs updating.
-	if blockchain.GetGCI(new) == 0 {
+	if blockchain.GetGCI(new) == -1 {
 		return errors.New("invalid GCI comparison in UpdateChain")
 	}
 	if len(new) > len(*blockchain) {
@@ -80,7 +79,7 @@ func (blockchain *Blockchain) UpdateChain(new Blockchain) error {
 func (blockchain Blockchain) GetGCI(new Blockchain) int {
 	if len(new) > len(blockchain) {
 		if !Equal(blockchain, new[:len(blockchain)]) {
-			return 0
+			return -1
 		}
 	}
 	return len(blockchain)
@@ -116,7 +115,6 @@ func (blockchain Blockchain) Save(name string) error {
 	if err = file.Close(); err != nil {
 		panic(err)
 	}
-	//err := ioutil.WriteFile(filename, blockchain.encodeChain(), 0600)
 	return err
 }
 
@@ -127,12 +125,10 @@ func (blockchain *Blockchain) Load(name string) error {
 		panic(err)
 	}
 	decoder := gob.NewDecoder(file)
-	err = decoder.Decode(blockchain)
-	if err != nil {
+	if err = decoder.Decode(blockchain); err != nil {
 		panic(err)
 	}
-	err = file.Close()
-	if err != nil {
+	if err = file.Close(); err != nil {
 		panic(err)
 	}
 	return err
