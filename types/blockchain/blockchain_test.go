@@ -121,3 +121,27 @@ func TestBlockchain_GetGCI(t *testing.T) {
 	}
 
 }
+
+func TestBlockchain_UpdateChain(t *testing.T) {
+	log.Println("Testing UpdateChain")
+	b := New()
+	b.Add([]byte("NewSTring"))
+	b.Add([]byte("NewSTring2"))
+	c := b
+	c.Add([]byte("new"))
+	err := b.UpdateChain(c)
+	if err != nil {
+		t.Error(err)
+	}
+	if !Equal(c, b) {
+		t.Error("Failed Update Chain")
+	}
+
+	d := New()
+	d.Add([]byte("invalid"))
+	err = c.UpdateChain(d)
+	if err == nil {
+		t.Error(err)
+	}
+
+}

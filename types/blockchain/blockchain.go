@@ -46,8 +46,7 @@ func (blockchain Blockchain) Validate() error {
 		return errors.New("invalid attempt to validate genesis block")
 	}
 	for i := 1; i < len(blockchain); i++ {
-		err := block.Validate(blockchain[i-1], blockchain[i])
-		if err != nil {
+		if err := block.Validate(blockchain[i-1], blockchain[i]); err != nil {
 			return errors.New("blockchain is invalid")
 		}
 	}
@@ -59,21 +58,23 @@ func (blockchain Blockchain) GetCurrentHash() []byte {
 	return blockchain[len(blockchain)].Blockhash
 }
 
-/*
-//GetValidChain returns the longest valid chain given two blockchains.
+//UpdateChain returns the longest valid chain given two blockchains.
 // it should be implied that the longest chain should be the most recent valid chain
 //this function should only take accept validated blockchains
-func (current *Blockchain) UpdateChain(new Blockchain) error {
+func (blockchain *Blockchain) UpdateChain(new Blockchain) error {
 	//Chain is longer and needs updating.
-	if len(new) > len(*current) {
-		err := new.Validate()
-		if err == nil {
-			return new, err
-		}
+	if blockchain.GetGCI(new) == 0 {
+		return errors.New("invalid GCI comparison in UpdateChain")
 	}
-	return nil
+	if len(new) > len(*blockchain) {
+		if err := new.Validate(); err != nil {
+			return errors.New("failed to Update Chain. Chain Invalid")
+		}
+		*blockchain = new
+		return nil
+	}
+	return errors.New("Chain not updated")
 }
-*/
 
 //GetGCI returns the greatest common index between the current blockchain and the new blockchain
 func (blockchain Blockchain) GetGCI(new Blockchain) int {
@@ -109,12 +110,10 @@ func (blockchain Blockchain) Save(name string) error {
 		panic(err)
 	}
 	encoder := gob.NewEncoder(file)
-	err = encoder.Encode(blockchain)
-	if err != nil {
+	if err = encoder.Encode(blockchain); err != nil {
 		panic(err)
 	}
-	err = file.Close()
-	if err != nil {
+	if err = file.Close(); err != nil {
 		panic(err)
 	}
 	//err := ioutil.WriteFile(filename, blockchain.encodeChain(), 0600)
