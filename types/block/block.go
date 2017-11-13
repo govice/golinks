@@ -24,8 +24,7 @@ func New(index int, data []byte, parent []byte) Block {
 	//handle genesis block case
 	if index == 0 {
 		parenthash := sha512.New()
-		_, err := parenthash.Write(blk.Data)
-		if err != nil {
+		if _, err := parenthash.Write(blk.Data); err != nil {
 			panic("Failed to write hash")
 		}
 		blk.Parenthash = parenthash.Sum(nil)
@@ -41,8 +40,7 @@ func (block Block) Hash() []byte {
 	blkhash := sha512.New()
 	var buffer bytes.Buffer
 	fmt.Fprintln(&buffer, block.Index, block.Timestamp, block.Data, block.Parenthash)
-	_, err := blkhash.Write(buffer.Bytes())
-	if err != nil {
+	if _, err := blkhash.Write(buffer.Bytes()); err != nil {
 		panic("failed to write to hash buffer")
 	}
 	return blkhash.Sum(nil)
