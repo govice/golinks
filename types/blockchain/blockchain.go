@@ -54,34 +54,35 @@ func (blockchain Blockchain) Validate() error {
 	return nil
 }
 
+//GetCurrentHash Returns the most recent hash in a blockchain
+func (blockchain Blockchain) GetCurrentHash() []byte {
+	return blockchain[len(blockchain)].Blockhash
+}
+
 /*
-func (blockchain Blockchain) encodeChain() []byte {
-	buffer := bytes.Buffer{}
-	chainGob := gob.NewEncoder(&buffer)
-	err := chainGob.Encode(blockchain)
-	if err != nil {
-		log.Fatal("failed to encode blockchain")
-	}
-	return buffer.Bytes()
-}
-
-func (blockchain *Blockchain) decodeChain() error {
-	buffer := bytes.Buffer{}
-	buffer.Write(data)
-	dec := gob.NewDecoder(&buffer)
-	err := dec.Decode(blockchain)
-	return err
-}
-*/
-
 //GetValidChain returns the longest valid chain given two blockchains.
 // it should be implied that the longest chain should be the most recent valid chain
 //this function should only take accept validated blockchains
-func GetValidChain(current, new Blockchain) Blockchain {
-	if len(new) > len(current) {
-		return new
+func (current *Blockchain) UpdateChain(new Blockchain) error {
+	//Chain is longer and needs updating.
+	if len(new) > len(*current) {
+		err := new.Validate()
+		if err == nil {
+			return new, err
+		}
 	}
-	return current
+	return nil
+}
+*/
+
+//GetGCI returns the greatest common index between the current blockchain and the new blockchain
+func (blockchain Blockchain) GetGCI(new Blockchain) int {
+	if len(new) > len(blockchain) {
+		if !Equal(blockchain, new[:len(blockchain)]) {
+			return 0
+		}
+	}
+	return len(blockchain)
 }
 
 //Equal tests the equality of two blockchains

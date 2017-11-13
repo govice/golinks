@@ -7,19 +7,9 @@ import (
 	"testing"
 )
 
-func TestValidChain(t *testing.T) {
-	blkchain := New()
-	blkchain.Add([]byte("NewSTring"))
-	blkchain.Add([]byte("NewSTring"))
-	err := blkchain.Validate()
-	if err != nil {
-		t.Error("Could not validate blockchain")
-	}
-}
-
 //TestGetValidChain creates two different blockchains of different sizes and attempts to validate the chain.
-func TestGetValidChain(t *testing.T) {
-
+func TestBlockchain_Validate(t *testing.T) {
+	log.Println("Testing GetValidChain")
 	blkchain := New()
 	blkchain.Add([]byte("NewSTring"))
 	blkchain.Add([]byte("NewSTring"))
@@ -64,7 +54,8 @@ func TestBinaryConverter(t *testing.T) {
 }
 */
 
-func TestEqual(t *testing.T) {
+func TestBlockchain_Equal(t *testing.T) {
+	log.Println("Testing Equal")
 	//construct two chains with genesis blocks
 	chainA := New()
 	var chainB Blockchain
@@ -88,7 +79,7 @@ func TestEqual(t *testing.T) {
 
 }
 
-func TestInputOutput(t *testing.T) {
+func TestBlockchain_InputOutput(t *testing.T) {
 	log.Println("Testing I/O")
 	//Test saving to file
 	blkchain := New()
@@ -116,4 +107,17 @@ func TestInputOutput(t *testing.T) {
 	if err != nil {
 		t.Error("failed to cleanup IO test file", err)
 	}
+}
+
+func TestBlockchain_GetGCI(t *testing.T) {
+	log.Println("Testing GetGCI")
+	b := New()
+	b.Add([]byte("NewSTring"))
+	b.Add([]byte("NewSTring2"))
+	c := b
+	c.Add([]byte("new"))
+	if b.GetGCI(c) != 3 {
+		t.Errorf("Invalid GCI of %v should be 3", len(b))
+	}
+
 }
