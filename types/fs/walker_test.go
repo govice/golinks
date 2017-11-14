@@ -11,11 +11,13 @@ import (
 )
 
 const (
-	SmallDir  = 10
-	SmallFile = 1000 //bytes
+	SmallArchive int = 10 // Small File Archive
+	SmallDir     int = 10
+	SmallFile    int = 1000 //bytes
+
 )
 
-var TestPath, _ = filepath.Abs(filepath.Dir(os.Args[0]) + "/test/") //Testing Root
+var TestPath, _ = filepath.Abs(filepath.Dir(os.Args[0]) + "/testHome/") //Testing Root
 
 //TODO finish test
 func TestWalker_Walker(t *testing.T) {
@@ -34,23 +36,30 @@ func TestWalker_Walker(t *testing.T) {
 			t.Error(err)
 		}
 	}()
-	//Write random data to files
-	for i := 0; i < SmallDir; i++ {
-		buff := make([]byte, SmallFile)
-		r.Read(buff)
-		//index := strconv.Itoa(i)
-		tmpfile, err := ioutil.TempFile(TestPath, "test")
+	//Generate Archive
+	for i := 0; i < SmallArchive; i++ {
+		tmpdir, err := ioutil.TempDir(TestPath, "testDir")
 		if err != nil {
 			t.Error(err)
 		}
 
-		if _, err := tmpfile.Write(buff); err != nil {
-			t.Error(err)
+		//Write random data to files
+		for j := 0; j < SmallDir; j++ {
+			buff := make([]byte, SmallFile)
+			r.Read(buff)
+			tmpfile, err := ioutil.TempFile(tmpdir, "testFile")
+			if err != nil {
+				t.Error(err)
+			}
+
+			if _, err := tmpfile.Write(buff); err != nil {
+				t.Error(err)
+			}
+			if err := tmpfile.Close(); err != nil {
+				t.Error(err)
+			}
 		}
-		if err := tmpfile.Close(); err != nil {
-			t.Error(err)
-		}
-	} // end setup
+	} //end setup
 
 	//Run Tests
 	t.Run("Walker Walk", func(t *testing.T) {

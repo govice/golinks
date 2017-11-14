@@ -33,7 +33,7 @@ func (w Walker) Walk() error {
 	e := filepath.Walk(w.root, func(path string, f os.FileInfo, err error) error {
 		files, _ := ioutil.ReadDir(path)
 		for _, r := range files {
-			fmt.Printf("Visited %s\n", r.Name())
+			fmt.Printf("%s\n", path+"\\"+r.Name())
 
 		}
 		return err
