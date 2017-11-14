@@ -2,6 +2,7 @@ package fs
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -29,11 +30,13 @@ func (w Walker) Root() string {
 
 //Walk handles walking of a walkers root filesystem
 func (w Walker) Walk() error {
-	err := filepath.Walk(w.root, visit)
-	return err
-}
+	e := filepath.Walk(w.root, func(path string, f os.FileInfo, err error) error {
+		files, _ := ioutil.ReadDir(path)
+		for _, r := range files {
+			fmt.Printf("Visited %s\n", r.Name())
 
-func visit(path string, f os.FileInfo, err error) error {
-	fmt.Printf("Visited %s\n", path)
-	return nil
+		}
+		return err
+	})
+	return e
 }
