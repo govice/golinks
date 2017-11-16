@@ -2,9 +2,10 @@
 package block
 
 import (
+	"github.com/pkg/errors"
+
 	"bytes"
 	"crypto/sha512"
-	"errors"
 	"fmt"
 	"time"
 )
@@ -49,14 +50,14 @@ func (block Block) Hash() []byte {
 //Validate compares two blocks to verify their parent child relationship.
 func Validate(prev, current Block) error {
 	if prev.Index+1 != current.Index {
-		return errors.New("block indexes do not correlate")
+		return errors.New("Validate: block indexes do not correlate")
 	}
 	if !bytes.Equal(prev.Blockhash, current.Parenthash) {
-		return errors.New("block parent child hashes do not correlate")
+		return errors.New("Validate: block hashes do not match")
 	}
 	h := current.Hash()
 	if !bytes.Equal(h, current.Blockhash) {
-		return errors.New("current block's hash is not valid")
+		return errors.New("Validate: current block's hash is not valid")
 	}
 	return nil
 }
