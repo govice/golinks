@@ -4,24 +4,31 @@
 package blockchain
 
 import (
-	"log"
+	"math/rand"
 
 	"github.com/LaughingCabbage/goLinks/types/block"
+	"github.com/pkg/errors"
 
 	"encoding/gob"
-	"errors"
 	"fmt"
 	"os"
+	"time"
 )
 
 //Blockchain type implements an array of blocks.
 type Blockchain []block.Block
 
+const genesisSize int = 1000000 //bytes
+
 //New returns a new blockchain and initializes the chain's genesis block.
 func New() Blockchain {
 	var blkchain Blockchain
-	//create genesis block and append it as root to blockchain
-	blk := block.New(0, []byte("GENESIS DATA"), nil)
+	//create genesis block from random data
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	buffer := make([]byte, genesisSize)
+	r.Read(buffer)
+
+	blk := block.New(0, buffer, nil)
 	blkchain = append(blkchain, blk)
 	return blkchain
 }
@@ -34,7 +41,6 @@ func (blockchain *Blockchain) Add(data []byte) {
 
 //Print outputs the blockchain to standard output.
 func (blockchain Blockchain) Print() {
-	fmt.Println("Printing blockchain...")
 	for i := 0; i < len(blockchain); i++ {
 		fmt.Println("Block ", i, ": ", blockchain[i])
 	}
@@ -43,11 +49,11 @@ func (blockchain Blockchain) Print() {
 //Validate iterates through blocks and calls the block.validate method for the length of the chain.
 func (blockchain Blockchain) Validate() error {
 	if len(blockchain) < 2 {
-		return errors.New("invalid attempt to validate genesis block")
+		return errors.New("Validate: invalid genesis block")
 	}
 	for i := 1; i < len(blockchain); i++ {
 		if err := block.Validate(blockchain[i-1], blockchain[i]); err != nil {
-			return errors.New("blockchain is invalid")
+			return errors.Wrap(err, "Validate: failed to validate blockchain blocks")
 		}
 	}
 	return nil
@@ -63,16 +69,16 @@ func (blockchain Blockchain) GetCurrentHash() []byte {
 func (blockchain *Blockchain) UpdateChain(new Blockchain) error {
 	//Chain is longer and needs updating.
 	if blockchain.GetGCI(new) == -1 {
-		return errors.New("invalid GCI comparison in UpdateChain")
+		return errors.New("UpdateChain: invalid GCI comparison")
 	}
 	if len(new) > len(*blockchain) {
 		if err := new.Validate(); err != nil {
-			return errors.New("failed to Update Chain. Chain Invalid")
+			return errors.Wrap(err, "UpdateChain: failed to validate new")
 		}
 		*blockchain = new
 		return nil
 	}
-	return errors.New("Chain not updated")
+	return errors.New("UpdateChain: Failed")
 }
 
 //GetGCI returns the greatest common index between the current blockchain and the new blockchain
@@ -93,9 +99,6 @@ func Equal(chainA, chainB Blockchain) bool {
 
 	for i := 0; i < len(chainA); i++ {
 		if !block.Equal(chainA[i], chainB[i]) {
-			log.Println("Chains not equal at blocks:")
-			log.Println(chainA[i])
-			log.Println(chainB[i])
 			return false
 		}
 	}
@@ -106,14 +109,14 @@ func Equal(chainA, chainB Blockchain) bool {
 func (blockchain Blockchain) Save(name string) error {
 	file, err := os.OpenFile(name+".dat", os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
-		panic(err)
+		return errors.Wrap(err, "Save: failed to open file")
 	}
 	encoder := gob.NewEncoder(file)
 	if err = encoder.Encode(blockchain); err != nil {
-		panic(err)
+		return errors.Wrap(err, "Save: failed to encode blockchain")
 	}
 	if err = file.Close(); err != nil {
-		panic(err)
+		return errors.Wrap(err, "Save: failed to close file")
 	}
 	return err
 }
@@ -122,14 +125,14 @@ func (blockchain Blockchain) Save(name string) error {
 func (blockchain *Blockchain) Load(name string) error {
 	file, err := os.Open(name + ".dat")
 	if err != nil {
-		panic(err)
+		return errors.Wrap(err, "Load: failed to open file")
 	}
 	decoder := gob.NewDecoder(file)
 	if err = decoder.Decode(blockchain); err != nil {
-		panic(err)
+		return errors.Wrap(err, "Load: failed to decode blockchain")
 	}
 	if err = file.Close(); err != nil {
-		panic(err)
+		return errors.Wrap(err, "Load: failed to close file")
 	}
 	return err
 }
