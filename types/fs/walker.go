@@ -11,11 +11,12 @@ import (
 type Walker struct {
 	workers int
 	root    string
+	archive []string
 }
 
 //New returns a new Walker
 func New(root string) Walker {
-	return Walker{1, root}
+	return Walker{1, root, nil}
 }
 
 //Workers returns the number of current workers
@@ -28,13 +29,26 @@ func (w Walker) Root() string {
 	return w.root
 }
 
+//PrintArchive prints all files in the existing archive
+func (w Walker) PrintArchive() {
+	if len(w.archive) == 0 {
+		fmt.Println("archive empty")
+		return
+	}
+	for _, r := range w.archive {
+		fmt.Printf("%s\n", r)
+	}
+}
+
 //Walk handles walking of a walkers root filesystem
-func (w Walker) Walk() error {
+func (w *Walker) Walk() error {
 	e := filepath.Walk(w.root, func(path string, f os.FileInfo, err error) error {
 		files, _ := ioutil.ReadDir(path)
 		for _, r := range files {
-			fmt.Printf("%s\n", path+"\\"+r.Name())
-
+			if !r.IsDir() {
+				f := path + string(os.PathSeparator) + r.Name()
+				w.archive = append(w.archive, f)
+			}
 		}
 		return err
 	})
