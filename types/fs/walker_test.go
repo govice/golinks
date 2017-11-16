@@ -68,6 +68,7 @@ func TestWalker_Walker(t *testing.T) {
 		if err := w.Walk(); err != nil {
 			t.Error(err)
 		}
+		w.PrintArchive()
 	})
 
 }
