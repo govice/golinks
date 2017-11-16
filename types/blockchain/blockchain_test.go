@@ -1,7 +1,6 @@
 package blockchain
 
 import (
-	"bytes"
 	"log"
 	"os"
 	"testing"
@@ -24,12 +23,6 @@ func TestBlockchain_Validate(t *testing.T) {
 	err = blkchain2.Validate()
 	if err != nil {
 		t.Error("Failed to Valiate Blockchain")
-	}
-
-	//validChain := GetValidChain(blkchain, blkchain2)
-
-	if !bytes.Equal(blkchain[0].Data, blkchain2[0].Data) {
-		t.Error("Valid block was not returned")
 	}
 
 	if Equal(blkchain, blkchain2) {
