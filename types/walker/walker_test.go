@@ -1,4 +1,4 @@
-package fs
+package walker
 
 import (
 	"io/ioutil"
