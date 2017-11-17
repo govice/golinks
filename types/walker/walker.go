@@ -1,6 +1,7 @@
 package walker
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -42,6 +43,9 @@ func (w Walker) PrintArchive() {
 
 //Walk handles walking of a walkers root filesystem
 func (w *Walker) Walk() error {
+	if w.root == "" {
+		return errors.New("Walk: Archive Empty")
+	}
 	e := filepath.Walk(w.root, func(path string, f os.FileInfo, err error) error {
 		files, _ := ioutil.ReadDir(path)
 		for _, r := range files {
