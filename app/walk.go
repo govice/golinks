@@ -1,40 +1,40 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
+
+	"fmt"
 
 	"github.com/LaughingCabbage/goLinks/types/walker"
 	"github.com/urfave/cli"
 )
 
 func appWalk(c *cli.Context) error {
-	if err := setRoot(c); err != nil {
-		return err
-	}
-	if err := w.Walk(); err != nil {
-		return cli.NewExitError(err.Error(), 0)
-	}
-	w.PrintArchive()
-	return nil
-}
-
-func setRoot(c *cli.Context) error {
-	fmt.Printf("Adding walker root: %v\n", c.Args().First())
-	//Validate archive root
+	//Verify provided walk path is valid
 	if err := verifyPath(c.Args().First()); err != nil {
 		return err
 	}
-
-	//TODO is this check needed or can c.args be used?
-	//Extract valid path for filesystem.
+	//Extract the valid path
 	path, err := filepath.Abs(c.Args().First())
 	if err != nil {
 		return cli.NewExitError(err, 0)
 	}
+	//Construct new walker and begin execution
 	w = walker.New(path)
-	fmt.Println(c.FlagNames())
+
+	if err := w.Walk(); err != nil {
+		return cli.NewExitError(err.Error(), 0)
+	}
+
+	//Process post walk commands
+
+	if c.Bool("print") {
+		fmt.Println("set")
+		w.PrintArchive()
+	} else {
+		w.PrintArchive()
+	}
 	return nil
 }
 
@@ -45,10 +45,5 @@ func verifyPath(path string) error {
 		}
 		panic(err)
 	}
-	return nil
-}
-
-func appOutput(c *cli.Context) error {
-	fmt.Println("checkout output")
 	return nil
 }

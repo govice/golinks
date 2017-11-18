@@ -9,11 +9,11 @@ import (
 
 const (
 	//walkerWorkers int    = 1
-	defaultRoot string = ""
+	defaultRoot string = "r"
 	//configName  string = "config"
 )
 
-var outputDir string = defaultRoot
+var outputDir = defaultRoot
 
 var w = walker.New(defaultRoot)
 
@@ -31,14 +31,6 @@ func main() {
 	app.HelpName = "golinks"
 	app.Usage = "a blockchain for your filesystem"
 
-	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:        "output, o",
-			Usage:       "set output 'DIR'",
-			Destination: &outputDir,
-		},
-	}
-
 	app.Commands = []cli.Command{
 		{
 			Name:        "walk",
@@ -46,6 +38,17 @@ func main() {
 			Usage:       "walk a given archive",
 			Description: "walk a given archive. print by default",
 			Action:      appWalk,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:        "output, o",
+					Usage:       "set output 'DIR'",
+					Destination: &outputDir,
+				},
+				cli.BoolFlag{
+					Name:  "print, p",
+					Usage: "print walked archive",
+				},
+			},
 		},
 	}
 
