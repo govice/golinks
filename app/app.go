@@ -50,6 +50,19 @@ func main() {
 				},
 			},
 		},
+		{
+			Name:        "maketest",
+			Aliases:     []string{"bt"},
+			Usage:       "build test directory",
+			Description: "builds a test directory in the provided location",
+			Action:      appBuildTestDir,
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:  "small, s",
+					Usage: "small directory",
+				},
+			},
+		},
 	}
 
 	//legooo
