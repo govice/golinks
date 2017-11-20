@@ -61,6 +61,14 @@ func main() {
 					Name:  "small, s",
 					Usage: "small directory",
 				},
+				cli.BoolFlag{
+					Name:  "medium, m",
+					Usage: "medium directory",
+				},
+				cli.BoolFlag{
+					Name:  "large, l",
+					Usage: "large directory",
+				},
 			},
 		},
 	}

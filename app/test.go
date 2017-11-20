@@ -7,17 +7,20 @@ import (
 	"io/ioutil"
 	"time"
 
+	"os"
+
 	"github.com/urfave/cli"
 )
 
 const (
-	smallArchive int = 10 // Small File Archive
-	smallDir     int = 10
-	smallFile    int = 1000 //bytes
-
+	testDirs    int = 10
+	testDirSize int = 10
+	smallFile   int = 1                 //1 B
+	mediumFile  int = smallFile * 1024  //1 KB
+	largeFile   int = mediumFile * 1024 //1 MB
 )
 
-var testPath = ""
+var testPath = "/testing"
 
 type test struct {
 	ArchiveSize   int
@@ -27,28 +30,45 @@ type test struct {
 
 //TODO cleanup of testing environment
 func appBuildTestDir(c *cli.Context) error {
-	//fmt.Println("building test directory")
 	fmt.Println(c.FlagNames())
 	fmt.Println(testPath)
 
 	if err := verifyPath(c.Args().First()); err != nil {
 		return err
 	}
-	testPath = c.Args().First()
 
+	testPath = c.Args().First() + testPath
+	if err := os.Mkdir(testPath, 0644); err != nil {
+		return cli.NewExitError("failed to create test directory", 0)
+	}
+
+	var config *test
 	for _, flagName := range c.FlagNames() {
+		if !c.IsSet(flagName) {
+			continue
+		}
 		switch flagName {
+
 		case "small":
-			small := &test{smallArchive, smallDir, smallFile}
+			config = &test{testDirs, testDirSize, smallFile}
 			fmt.Println("generating small test")
-			if err := generateTestDir(testPath, small); err != nil {
-				return cli.NewExitError("BuildTestDir: failed to build small test directory", 0)
-			}
+
+		case "medium":
+			config = &test{testDirs, testDirSize, mediumFile}
+			fmt.Println("generating medium test")
+
+		case "large":
+			config = &test{testDirs, testDirSize, largeFile}
+			fmt.Println("generating large test")
 
 		default:
-			fmt.Println("default called")
+			continue
 		}
 	}
+	if err := generateTestDir(testPath, config); err != nil {
+		return cli.NewExitError("BuildTestDir: failed to build small test directory", 0)
+	}
+
 	return nil
 }
 
