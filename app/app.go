@@ -48,6 +48,10 @@ func main() {
 					Name:  "print, p",
 					Usage: "print walked archive",
 				},
+				cli.BoolFlag{
+					Name:  "link, l",
+					Usage: "generate link for walked directory",
+				},
 			},
 		},
 		{
