@@ -30,6 +30,11 @@ func (w Walker) Root() string {
 	return w.root
 }
 
+//Archive returns the walkers archive if set
+func (w Walker) Archive() []string {
+	return w.archive
+}
+
 //PrintArchive prints all files in the existing archive
 func (w Walker) PrintArchive() {
 	if len(w.archive) == 0 {
