@@ -30,23 +30,6 @@ func TestBlockchain_Validate(t *testing.T) {
 	}
 }
 
-/*
-//TestBinaryConverter checks for proper encoding and decoding of blockchain gobs to buffer
-func TestBinaryConverter(t *testing.T) {
-	blkchain := New()
-	blkchain.Add([]byte("NewSTring"))
-	blkchain.Add([]byte("NewSTring"))
-	_ = blkchain.Validate()
-	bin := blkchain.encodeChain()
-
-	var out Blockchain
-	err := out.decodeChain(bin)
-	if err != nil {
-		t.Error("Invalid decode Blockchain", err)
-	}
-}
-*/
-
 func TestBlockchain_Equal(t *testing.T) {
 	log.Println("Testing Equal")
 	//construct two chains with genesis blocks
