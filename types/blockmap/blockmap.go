@@ -1,9 +1,12 @@
 package blockmap
 
 import (
-	"log"
-
 	"path/filepath"
+
+	"bytes"
+	"crypto/sha512"
+
+	"encoding/gob"
 
 	"github.com/LaughingCabbage/goLinks/types/fs"
 	"github.com/LaughingCabbage/goLinks/types/walker"
@@ -25,7 +28,6 @@ func New(root string) *BlockMap {
 
 //Generate creates an archive of the provided archives root filesystem
 func (b *BlockMap) Generate() error {
-	log.Println("Generating at root " + b.root)
 
 	w := walker.New(b.root)
 	if err := w.Walk(); err != nil {
@@ -49,6 +51,33 @@ func (b *BlockMap) Generate() error {
 		//Add the hash to the archive using the relative path as it's key
 		b.archive[relPath] = fileHash
 	}
+
+	//If were here the entries are successful so we'll hash the blockmap.
+	if err := b.hashBlockMap(); err != nil {
+		return errors.Wrap(err, "BlockMap: failed to has block map")
+	}
+	return nil
+
+}
+
+func (b *BlockMap) hashBlockMap() error {
+	if b.archive == nil {
+		return errors.New("hashBlockMap: Attempted to hash null archive")
+	}
+	hash := sha512.New()
+	buffer := new(bytes.Buffer)
+	encoder := gob.NewEncoder(buffer)
+
+	err := encoder.Encode(b.archive)
+	if err != nil {
+		return errors.Wrap(err, "hashBlockMap: failed to encode archive map")
+	}
+
+	if _, err := hash.Write(buffer.Bytes()); err != nil {
+		return errors.Wrap(err, "hashBlockMap: failed to write to write hash buffer")
+	}
+
+	b.rootHash = hash.Sum(nil)
 	return nil
 
 }
