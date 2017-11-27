@@ -8,6 +8,8 @@ import (
 
 	"encoding/gob"
 
+	"fmt"
+
 	"github.com/LaughingCabbage/goLinks/types/fs"
 	"github.com/LaughingCabbage/goLinks/types/walker"
 	"github.com/pkg/errors"
@@ -52,10 +54,11 @@ func (b *BlockMap) Generate() error {
 		b.archive[relPath] = fileHash
 	}
 
-	//If were here the entries are successful so we'll hash the blockmap.
+	//If we're here, the entries are successful so we'll hash the blockmap.
 	if err := b.hashBlockMap(); err != nil {
 		return errors.Wrap(err, "BlockMap: failed to has block map")
 	}
+
 	return nil
 
 }
@@ -80,4 +83,16 @@ func (b *BlockMap) hashBlockMap() error {
 	b.rootHash = hash.Sum(nil)
 	return nil
 
+}
+
+//PrintBlockMap prints an existing block map and returns an error if not configured
+func (b BlockMap) PrintBlockMap() {
+	if b.rootHash == nil {
+		fmt.Println("BlockMap is unhashed or unset")
+	}
+	fmt.Println("Root: " + b.root)
+	fmt.Printf("Hash: %v\n", b.rootHash)
+	for key, value := range b.archive {
+		fmt.Printf("%v: %v\n", key, value)
+	}
 }
