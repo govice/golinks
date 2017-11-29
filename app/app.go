@@ -48,15 +48,18 @@ func main() {
 					Name:  "print, p",
 					Usage: "print walked archive",
 				},
-				cli.BoolFlag{
-					Name:  "link, l",
-					Usage: "generate link for walked directory",
-				},
 			},
 		},
 		{
+			Name:        "link",
+			Aliases:     []string{"l"},
+			Usage:       "link [Directory]",
+			Description: "generate link file for the provided directory",
+			Action:      appLink,
+		},
+		{
 			Name:        "maketest",
-			Aliases:     []string{"bt"},
+			Aliases:     []string{"mt"},
 			Usage:       "build test directory",
 			Description: "builds a test directory in the provided location",
 			Action:      appBuildTestDir,
