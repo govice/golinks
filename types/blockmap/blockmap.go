@@ -96,3 +96,13 @@ func (b BlockMap) PrintBlockMap() {
 		fmt.Printf("%v: %v\n", key, value)
 	}
 }
+
+//Equal returns an evaluation of the equality of two blockmaps
+func Equal(a, b *BlockMap) bool {
+	if a.root != b.root && !bytes.Equal(a.rootHash, b.rootHash) {
+		return false
+	}
+	return true
+}
+
+//TODO verify existing blockmap
