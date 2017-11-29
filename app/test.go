@@ -33,11 +33,12 @@ func appBuildTestDir(c *cli.Context) error {
 	fmt.Println(c.FlagNames())
 	fmt.Println(testPath)
 
-	if err := verifyPath(c.Args().First()); err != nil {
+	absPath, err := verifyPath(c.Args().First())
+	if err != nil {
 		return err
 	}
 
-	testPath = c.Args().First() + testPath
+	testPath = absPath + testPath
 	if err := os.Mkdir(testPath, 0644); err != nil {
 		return cli.NewExitError("failed to create test directory", 0)
 	}
