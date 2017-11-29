@@ -58,6 +58,13 @@ func main() {
 			Action:      appLink,
 		},
 		{
+			Name:        "validate",
+			Aliases:     []string{"v"},
+			Usage:       "validate [Directory]",
+			Description: "validate an existing archive link",
+			Action:      appValidate,
+		},
+		{
 			Name:        "maketest",
 			Aliases:     []string{"mt"},
 			Usage:       "build test directory",
