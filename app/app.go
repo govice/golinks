@@ -53,16 +53,23 @@ func main() {
 		{
 			Name:        "link",
 			Aliases:     []string{"l"},
-			Usage:       "link [Directory]",
+			Usage:       "link [directory]",
 			Description: "generate link file for the provided directory",
 			Action:      appLink,
 		},
 		{
 			Name:        "validate",
 			Aliases:     []string{"v"},
-			Usage:       "validate [Directory]",
+			Usage:       "validate [directory]",
 			Description: "validate an existing archive link",
 			Action:      appValidate,
+		},
+		{
+			Name:        "zip",
+			Aliases:     []string{"c"},
+			Usage:       "zip [directory] [target]",
+			Description: "compress a directory into a zip file",
+			Action:      appZip,
 		},
 		{
 			Name:        "maketest",
