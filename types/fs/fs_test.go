@@ -11,10 +11,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-var TestPath, _ = filepath.Abs(filepath.Dir(os.Args[0]) + "/testHome/") //Testing Root
-
 func TestHashFile(t *testing.T) {
 	//create files to test
+	var TestPath, _ = filepath.Abs(filepath.Dir(os.Args[0]) + "/testHome/") //Testing Root
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	if err := os.Mkdir(TestPath, 0644); err != nil {
 		t.Error(err)
@@ -59,4 +58,10 @@ func TestHashFile(t *testing.T) {
 		t.Error(errors.New("fs: HashFile returned nil hash"))
 	}
 
+}
+
+func TestCompress(t *testing.T) {
+	if err := Compress(os.Getenv("TEST_ARCHIVE")); err != nil {
+		t.Error(err)
+	}
 }
