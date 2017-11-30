@@ -8,8 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"log"
-
 	"github.com/pkg/errors"
 )
 
@@ -63,10 +61,9 @@ func TestHashFile(t *testing.T) {
 }
 
 func TestZip(t *testing.T) {
-	if err := Compress(os.Getenv("TEST_FOLDER")); err != nil {
+	if err := Compress(os.Getenv("TEST_FOLDER"), os.Getenv("ZIP_DEST")); err != nil {
 		t.Error(err)
 	}
-	log.Println(os.Getenv("ZIP_DEST"))
 	if err := Decompress(os.Getenv("TEST_ARCHIVE"), os.Getenv("ZIP_DEST")); err != nil {
 		t.Error(err)
 	}

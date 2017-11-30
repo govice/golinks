@@ -54,7 +54,7 @@ func HashFile(path string) ([]byte, error) {
 }
 
 //Compress stores a zip file of in the provided path
-func Compress(path string) error {
+func Compress(path, target string) error {
 	//TODO this is...dense. cyclomatic complexity >10
 
 	//Verify directory exists
@@ -69,7 +69,7 @@ func Compress(path string) error {
 	}
 
 	//Get the archives parent for a default storage location
-	parentPath, err := filepath.Abs(path + string(os.PathSeparator) + "..")
+	parentPath, err := filepath.Abs(target)
 	if err != nil {
 		return errors.Wrap(err, "fs: compress failed to extract absolute path of archive")
 	}
