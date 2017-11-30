@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"log"
+
 	"github.com/pkg/errors"
 )
 
@@ -60,8 +62,36 @@ func TestHashFile(t *testing.T) {
 
 }
 
-func TestCompress(t *testing.T) {
-	if err := Compress(os.Getenv("TEST_ARCHIVE")); err != nil {
+func TestZip(t *testing.T) {
+	if err := Compress(os.Getenv("TEST_FOLDER")); err != nil {
 		t.Error(err)
 	}
+	log.Println(os.Getenv("ZIP_DEST"))
+	if err := Decompress(os.Getenv("TEST_ARCHIVE"), os.Getenv("ZIP_DEST")); err != nil {
+		t.Error(err)
+	}
+
+	//TODO move this test to blockmap (import cycle)
+	/*
+			original := &blockmap.BlockMap{}
+			if err := original.Load(os.Getenv("TEST_FOLDER")); err != nil {
+				t.Error(err)
+			}
+
+			unziped := &blockmap.BlockMap{}
+			if err := unziped.Load(os.Getenv("ZIP_OUT")); err != nil {
+				t.Error(err)
+			}
+
+		//Test validity
+		if !blockmap.Equal(original, unziped) {
+			t.Error("Original and unziped archives are different")
+		}
+	*/
+
+	//Cleanup
+	if err := os.RemoveAll(os.Getenv("ZIP_OUT")); err != nil {
+		t.Error(err)
+	}
+
 }

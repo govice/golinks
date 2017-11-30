@@ -131,8 +131,6 @@ func Compress(path string) error {
 
 //Decompress extracts a compressed archive at path to target
 func Decompress(path, target string) error {
-	//TODO finish decompress
-	//TODO add tests
 
 	//create zip reader
 	r, err := zip.OpenReader(path)
@@ -142,7 +140,7 @@ func Decompress(path, target string) error {
 
 	//iterate and extract all files in the zip archive to target
 	for _, file := range r.File {
-		//Get relative location of file in archive
+		//Get absolute location from archive relative path
 		destFile := filepath.Join(target, file.Name)
 
 		//Get files directory name and create the folder hierarchy
