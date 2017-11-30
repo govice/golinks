@@ -122,9 +122,68 @@ func Compress(path string) error {
 	}
 	//close archive buffer
 	if err := archiveBuffer.Close(); err != nil {
-		return errors.Wrap(err, "fs: failed to close archive buffer")
+		return errors.Wrap(err, "fs: compress failed to close archive buffer")
 	}
 
 	return nil
 
+}
+
+//Decompress extracts a compressed archive at path to target
+func Decompress(path, target string) error {
+	//TODO finish decompress
+	//TODO add tests
+
+	//create zip reader
+	r, err := zip.OpenReader(path)
+	if err != nil {
+		return errors.Wrap(err, "fs: decompress failed to open zip reader")
+	}
+
+	//iterate and extract all files in the zip archive to target
+	for _, file := range r.File {
+		//Get relative location of file in archive
+		destFile := filepath.Join(target, file.Name)
+
+		//Get files directory name and create the folder hierarchy
+		destDir, _ := filepath.Split(destFile)
+		if err := os.MkdirAll(destDir, file.Mode()); err != nil {
+			return errors.Wrap(err, "fs: decompress failed to create destination")
+		}
+
+		//open zipped file for decompression
+		zippedFile, err := file.Open()
+		if err != nil {
+			return errors.Wrap(err, "fs: decompress failed to open zipped file")
+		}
+
+		//open destination file
+		dest, err := os.OpenFile(destFile, os.O_RDWR|os.O_CREATE, file.Mode())
+		if err != nil {
+			return errors.Wrap(err, "fs: decompress failed to open destination file")
+		}
+
+		//Write unzipped file to destination
+		if _, err := io.Copy(dest, zippedFile); err != nil {
+			return errors.Wrap(err, "fs: decompress failed to write unzip file to destination")
+		}
+
+		//close opened zip file
+		if err := zippedFile.Close(); err != nil {
+			return errors.Wrap(err, "fs: decompress failed to close zipped file")
+		}
+
+		//close opened destination file
+		if err := dest.Close(); err != nil {
+			return errors.Wrap(err, "fs: decompress failed to close destination file")
+		}
+
+	}
+
+	//close zip reader
+	if err := r.Close(); err != nil {
+		return errors.Wrap(err, "fs: decompress failed to close zip reader")
+	}
+
+	return nil
 }
