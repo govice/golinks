@@ -72,6 +72,13 @@ func main() {
 			Action:      appZip,
 		},
 		{
+			Name:        "unzip",
+			Aliases:     []string{"u"},
+			Usage:       "unzip [archive] [target]",
+			Description: "decompress an archive to target folder",
+			Action:      appUnzip,
+		},
+		{
 			Name:        "maketest",
 			Aliases:     []string{"mt"},
 			Usage:       "build test directory",
