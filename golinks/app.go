@@ -34,7 +34,6 @@ func main() {
 	app.Commands = []cli.Command{
 		{
 			Name:        "walk",
-			Aliases:     []string{"w"},
 			Usage:       "walk a given archive",
 			Description: "walk a given archive. print by default",
 			Action:      appWalk,
@@ -52,35 +51,30 @@ func main() {
 		},
 		{
 			Name:        "link",
-			Aliases:     []string{"l"},
 			Usage:       "link [directory]",
 			Description: "generate link file for the provided directory",
 			Action:      appLink,
 		},
 		{
 			Name:        "validate",
-			Aliases:     []string{"v"},
 			Usage:       "validate [directory]",
 			Description: "validate an existing archive link",
 			Action:      appValidate,
 		},
 		{
 			Name:        "zip",
-			Aliases:     []string{"c"},
 			Usage:       "zip [directory] [target]",
 			Description: "compress a directory into a zip file",
 			Action:      appZip,
 		},
 		{
 			Name:        "unzip",
-			Aliases:     []string{"u"},
 			Usage:       "unzip [archive] [target]",
 			Description: "decompress an archive to target folder",
 			Action:      appUnzip,
 		},
 		{
 			Name:        "maketest",
-			Aliases:     []string{"mt"},
 			Usage:       "build test directory",
 			Description: "builds a test directory in the provided location",
 			Action:      appBuildTestDir,
