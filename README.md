@@ -1,7 +1,7 @@
 # goLinks
-goLinks was created to realize a blockchain implemented in Go.
-This project was created on the evening of 6/19/2017
-
-# Author: Kevin Gentile
-
-
+goLinks was created to realize a blockchain implemented in Go. This project has grown beyond it's initial scope into a
+blockchain and filesystem library as well as a command line tool. Updates to come.
+## Author 
+Kevin Gentile
+    
+Contact: kevin@kevingentile.com
