@@ -31,7 +31,7 @@ import (
 //Blockchain type implements an array of blocks.
 type Blockchain []block.Block
 
-const genesisSize int = 1000000 //bytes
+const genesisSize int = 100 //bytes
 
 //New returns a new blockchain and initializes the chain's genesis block.
 func New() Blockchain {
