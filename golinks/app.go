@@ -1,5 +1,5 @@
 /*
- *Copyright 2017 Kevin Gentile
+ *Copyright 2017-2018 Kevin Gentile
  *
  *Licensed under the Apache License, Version 2.0 (the "License");
  *you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ func main() {
 			Email: "kevin@kevingentile.com",
 		},
 	}
-	app.Copyright = "(c) 2017 Kevin Gentile"
+	app.Copyright = "(c) 2017-2018 Kevin Gentile"
 	app.HelpName = "golinks"
 	app.Usage = "a blockchain for your filesystem"
 
@@ -66,6 +66,7 @@ func main() {
 			},
 		},
 		{
+			//todo save failing on link command
 			Name:        "link",
 			Usage:       "link [directory]",
 			Description: "generate link file for the provided directory",

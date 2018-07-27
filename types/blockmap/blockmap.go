@@ -62,7 +62,6 @@ func (b *BlockMap) Generate() error {
 
 	//Iterate through all walked files
 	for _, filePath := range w.Archive() {
-
 		//Extract the relative path for the archive
 		relPath, err := filepath.Rel(w.Root(), filePath)
 		if err != nil {
@@ -112,6 +111,8 @@ func (b *BlockMap) hashBlockMap() error {
 	}
 
 	b.RootHash = hash.Sum(nil)
+	fmt.Println("HASH BLOCK MAP")
+	fmt.Println(b.RootHash)
 	return nil
 
 }
@@ -133,15 +134,23 @@ func (b BlockMap) Save(path string) error {
 	if b.RootHash == nil {
 		return errors.New("BlockMap: can't save nil hashed map")
 	}
-	file, err := os.OpenFile(path+string(os.PathSeparator)+OutputName, os.O_RDWR|os.O_CREATE, 0755)
+	fmt.Println(path)
+	linkFile, err := os.OpenFile(path+string(os.PathSeparator)+OutputName, os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
 		return errors.Wrap(err, "BlockMap: failed to save link file")
 	}
-	encoder := gob.NewEncoder(file)
+
+	// if bytesWritten, err := linkFile.Write([]byte(b)); err != nil {
+	// 	fmt.Println(bytesWritten)
+	// 	return errors.Wrap(err, "BlockMap: failed to encode link file")
+	// }
+
+	//todo validate file write
+	encoder := gob.NewEncoder(linkFile)
 	if err = encoder.Encode(b); err != nil {
 		return errors.Wrap(err, "BlockMap: failed to encode link file")
 	}
-	if err := file.Close(); err != nil {
+	if err := linkFile.Close(); err != nil {
 		return errors.Wrap(err, "BlockMap: failed to close link file")
 	}
 	return nil

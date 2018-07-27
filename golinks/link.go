@@ -30,15 +30,17 @@ func appLink(c *cli.Context) error {
 		return cli.NewExitError(err, 0)
 	}
 
-	b := blockmap.New(absPath)
+	//todo this does not do what I thought it did.
+	//todo
+	blockmap := blockmap.New(absPath)
 	log.Println("generating link in " + absPath)
-	if err := b.Generate(); err != nil {
+	if err := blockmap.Generate(); err != nil {
 		return cli.NewExitError(err, 0)
 	}
-	b.PrintBlockMap()
+	blockmap.PrintBlockMap()
 
 	log.Println("saving blockmap to .link file")
-	if err := b.Save(absPath); err != nil {
+	if err := blockmap.Save(absPath); err != nil {
 		return cli.NewExitError(err, 0)
 	}
 	return nil
