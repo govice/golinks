@@ -103,6 +103,7 @@ func main() {
 					Name:  "medium, m",
 					Usage: "medium directory",
 				},
+				//todo usage "-large"
 				cli.BoolFlag{
 					Name:  "large, l",
 					Usage: "large directory",

@@ -72,6 +72,7 @@ func HashFile(path string) ([]byte, error) {
 //Compress stores a zip file of in the provided path
 func Compress(path, target string) error {
 	//TODO this is...dense. cyclomatic complexity >10
+	//TODOAY we refactor this to use go channels
 
 	//Verify directory exists
 	s, err := os.Stat(path)

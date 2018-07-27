@@ -36,7 +36,8 @@ const (
 	largeFile   int = mediumFile * 1024 //1 MB
 )
 
-var testPath = "/testing"
+//todo seperator
+var testPath = string(os.PathSeparator) + "testing"
 
 type test struct {
 	ArchiveSize   int
@@ -55,9 +56,7 @@ func appBuildTestDir(c *cli.Context) error {
 	}
 
 	testPath = absPath + testPath
-	if err := os.Mkdir(testPath, 0644); err != nil {
-		return cli.NewExitError("failed to create test directory", 0)
-	}
+	os.Mkdir(testPath, 0644)
 
 	var config *test
 	for _, flagName := range c.FlagNames() {
@@ -76,6 +75,7 @@ func appBuildTestDir(c *cli.Context) error {
 
 		case "large":
 			config = &test{testDirs, testDirSize, largeFile}
+			fmt.Println(config)
 			fmt.Println("generating large test")
 
 		default:
@@ -91,6 +91,8 @@ func appBuildTestDir(c *cli.Context) error {
 
 func generateTestDir(testRoot string, t *test) error {
 	fmt.Println("generating test directory")
+	fmt.Println("test path+" + testPath)
+	fmt.Println(t.ArchiveSize)
 	for i := 0; i < t.ArchiveSize; i++ {
 		tmpdir, err := ioutil.TempDir(testPath, "testDir")
 		if err != nil {

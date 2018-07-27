@@ -7,6 +7,13 @@ Make sure your go bin path is configured.
     go get github.com/LaughingCabbage/golinks/golinks
     go install github.com/LaughingCabbage/golinks/golinks
     golinks -h
+
+## test
+
+    golinks maketest [path] -[small/medium/large]
+
+####Example
+    golinks maketest ./ -large
     
 ## Author
 Kevin Gentile
