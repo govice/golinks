@@ -17,12 +17,16 @@
 package fs
 
 import (
+	"fmt"
 	"io/ioutil"
 	"math/rand"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 	"time"
+
+	"github.com/LaughingCabbage/golinks/types/blockchain"
 
 	"github.com/pkg/errors"
 )
@@ -107,4 +111,25 @@ func TestZip(t *testing.T) {
 		t.Error(err)
 	}
 
+}
+
+//todo create test folder
+func TestSaveGob(t *testing.T) {
+	fileName := "testFile.link"
+	cwd, _ := os.Getwd()
+
+	filePath := cwd + string(os.PathSeparator) + fileName
+	fmt.Println(filePath)
+	b := blockchain.New()
+	if err := SaveGob(filePath, b); err != nil {
+		t.Error(err)
+	}
+	defer os.Remove(filePath)
+
+	blockChainOut := &blockchain.Blockchain{}
+	ReadGob(filePath, blockChainOut)
+
+	if !reflect.DeepEqual(b, blockChainOut) {
+		t.Error("Gob file not written/read properly")
+	}
 }
