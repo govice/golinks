@@ -130,6 +130,7 @@ func (b BlockMap) PrintBlockMap() {
 }
 
 //Save will store a byte file of the blockmap in the default OutputFile
+//todo test
 func (b BlockMap) Save(path string) error {
 	if b.RootHash == nil {
 		return errors.New("BlockMap: can't save nil hashed map")
@@ -139,11 +140,6 @@ func (b BlockMap) Save(path string) error {
 	if err != nil {
 		return errors.Wrap(err, "BlockMap: failed to save link file")
 	}
-
-	// if bytesWritten, err := linkFile.Write([]byte(b)); err != nil {
-	// 	fmt.Println(bytesWritten)
-	// 	return errors.Wrap(err, "BlockMap: failed to encode link file")
-	// }
 
 	//todo validate file write
 	encoder := gob.NewEncoder(linkFile)

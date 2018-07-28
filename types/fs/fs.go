@@ -18,6 +18,7 @@ package fs
 
 import (
 	"crypto/sha512"
+	"encoding/gob"
 	"os"
 
 	"path/filepath"
@@ -198,6 +199,33 @@ func Decompress(path, target string) error {
 	//close zip reader
 	if err := r.Close(); err != nil {
 		return errors.Wrap(err, "fs: decompress failed to close zip reader")
+	}
+
+	return nil
+}
+
+//SaveGob writes a gob file to path
+func SaveGob(path string, object interface{}) error {
+	file, err := os.Create(path)
+	defer file.Close()
+	if err == nil {
+		encoder := gob.NewEncoder(file)
+		encoder.Encode(object)
+	}
+	return err
+}
+
+//ReadGob reads a gob file from path
+func ReadGob(path string, object interface{}) error {
+	file, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	decoder := gob.NewDecoder(file)
+	if err = decoder.Decode(object); err != nil {
+		return err
 	}
 
 	return nil
