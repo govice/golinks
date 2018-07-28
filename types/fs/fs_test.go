@@ -22,7 +22,6 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
-	"reflect"
 	"testing"
 	"time"
 
@@ -126,10 +125,10 @@ func TestSaveGob(t *testing.T) {
 	}
 	defer os.Remove(filePath)
 
-	blockChainOut := &blockchain.Blockchain{}
-	ReadGob(filePath, blockChainOut)
+	blockChainOut := blockchain.Blockchain{}
+	ReadGob(filePath, &blockChainOut)
 
-	if !reflect.DeepEqual(b, blockChainOut) {
+	if !blockchain.Equal(b, blockChainOut) {
 		t.Error("Gob file not written/read properly")
 	}
 }
