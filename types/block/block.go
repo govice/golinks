@@ -28,7 +28,7 @@ import (
 //Block type structures a blockchain block by encapsulating vital components including index, timestamp, payload, and hashes.
 type Block struct {
 	Index      int
-	Timestamp  time.Time
+	Timestamp  int64
 	Data       []byte
 	Parenthash []byte
 	Blockhash  []byte
@@ -36,7 +36,7 @@ type Block struct {
 
 //New creates a new blockchain block and initializes index, payload data, and hashes.
 func New(index int, data []byte, parent []byte) Block {
-	blk := Block{index, time.Now().Round(0), data, nil, nil}
+	blk := Block{index, time.Now().Unix(), data, nil, nil}
 	//handle genesis block case
 	if index == 0 {
 		parenthash := sha512.New()
@@ -84,5 +84,7 @@ func (block Block) PrintBlock() {
 
 //Equal checks if the hash of two blocks are equal.
 func Equal(blockA, blockB Block) bool {
-	return bytes.Equal(blockA.Hash(), blockB.Hash())
+	blockAHash := blockA.Hash()
+	blockBHash := blockB.Hash()
+	return bytes.Equal(blockAHash, blockBHash)
 }
