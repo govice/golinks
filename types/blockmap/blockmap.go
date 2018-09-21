@@ -29,8 +29,8 @@ import (
 
 	"os"
 
-	"github.com/LaughingCabbage/goLinks/types/fs"
-	"github.com/LaughingCabbage/goLinks/types/walker"
+	"github.com/LaughingCabbage/golinks/types/fs"
+	"github.com/LaughingCabbage/golinks/types/walker"
 	"github.com/pkg/errors"
 )
 
