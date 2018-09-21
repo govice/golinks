@@ -19,7 +19,7 @@ package main
 import (
 	"log"
 
-	"github.com/LaughingCabbage/goLinks/types/fs"
+	"github.com/LaughingCabbage/golinks/types/fs"
 	"github.com/urfave/cli"
 )
 

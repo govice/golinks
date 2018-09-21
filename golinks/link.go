@@ -19,7 +19,7 @@ package main
 import (
 	"log"
 
-	"github.com/LaughingCabbage/goLinks/types/blockmap"
+	"github.com/LaughingCabbage/golinks/types/blockmap"
 	"github.com/urfave/cli"
 )
 
@@ -40,8 +40,10 @@ func appLink(c *cli.Context) error {
 	blockmap.PrintBlockMap()
 
 	log.Println("saving blockmap to .link file")
-	if err := blockmap.Save(absPath); err != nil {
-		return cli.NewExitError(err, 0)
-	}
+	// if err := blockmap.Save(absPath); err != nil {
+	// 	return cli.NewExitError(err, 0)
+	// }
+
+	//todo fs.saveGob
 	return nil
 }
