@@ -19,7 +19,7 @@ package blockchain
 import (
 	"math/rand"
 
-	"github.com/LaughingCabbage/goLinks/types/block"
+	"github.com/LaughingCabbage/golinks/types/block"
 	"github.com/pkg/errors"
 
 	"encoding/gob"
