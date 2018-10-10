@@ -19,13 +19,13 @@ package blockchain
 import (
 	"math/rand"
 
-	"github.com/LaughingCabbage/golinks/types/block"
-	"github.com/pkg/errors"
-
 	"encoding/gob"
 	"fmt"
 	"os"
 	"time"
+
+	"github.com/laughingcabbage/golinks/types/block"
+	"github.com/pkg/errors"
 )
 
 //Blockchain type implements an array of blocks.

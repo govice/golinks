@@ -2,12 +2,12 @@
 
 ### GoDoc
 
-#### [block](https://godoc.org/github.com/LaughingCabbage/goLinks/types/block)
+#### [block](https://godoc.org/github.com/laughingcabbage/goLinks/types/block)
 
-#### [blockchain](https://godoc.org/github.com/LaughingCabbage/goLinks/types/blockchain)
+#### [blockchain](https://godoc.org/github.com/laughingcabbage/goLinks/types/blockchain)
 
-#### [blockmap](https://godoc.org/github.com/LaughingCabbage/goLinks/types/blockmap)
+#### [blockmap](https://godoc.org/github.com/laughingcabbage/goLinks/types/blockmap)
 
-#### [fs](https://godoc.org/github.com/LaughingCabbage/goLinks/types/fs)
+#### [fs](https://godoc.org/github.com/laughingcabbage/goLinks/types/fs)
 
-#### [walker](https://godoc.org/github.com/LaughingCabbage/goLinks/types/walker)
+#### [walker](https://godoc.org/github.com/laughingcabbage/goLinks/types/walker)

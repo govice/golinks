@@ -4,8 +4,8 @@ This command line tool is currently under development and will change frequently
 ## install
 Make sure your go bin path is configured.
 
-    go get github.com/LaughingCabbage/golinks/golinks
-    go install github.com/LaughingCabbage/golinks/golinks
+    go get github.com/laughingcabbage/golinks/golinks
+    go install github.com/laughingcabbage/golinks/golinks
     golinks -h
 
 ## test
