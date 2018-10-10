@@ -18,6 +18,7 @@ package blockmap
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"testing"
 )
@@ -37,6 +38,7 @@ func TestBlockMap_Generate(t *testing.T) {
 }
 
 func TestBlockMap_PrintBlockMap(t *testing.T) {
+	t.Skip()
 	b := New(os.Getenv("TEST_ROOT"))
 	if err := b.Generate(); err != nil {
 		t.Error(err)
@@ -48,6 +50,7 @@ func TestBlockMap_PrintBlockMap(t *testing.T) {
 func TestEqual(t *testing.T) {
 	//Initialize A
 	a := New(os.Getenv("TEST_ROOT"))
+	fmt.Println(os.Getenv("TEST_ROOT"))
 	if err := a.Generate(); err != nil {
 		t.Error(err)
 	}

@@ -17,6 +17,7 @@
 package blockchain
 
 import (
+	"github.com/laughingcabbage/golinks/types/block"
 	"math/rand"
 
 	"encoding/gob"
@@ -24,7 +25,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/laughingcabbage/golinks/types/block"
 	"github.com/pkg/errors"
 )
 

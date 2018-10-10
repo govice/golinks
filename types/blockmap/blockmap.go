@@ -17,6 +17,9 @@
 package blockmap
 
 import (
+	"github.com/laughingcabbage/golinks/types/fs"
+	"github.com/laughingcabbage/golinks/types/walker"
+	"github.com/pkg/errors"
 	"log"
 	"path/filepath"
 
@@ -28,10 +31,6 @@ import (
 	"fmt"
 
 	"os"
-
-	"github.com/laughingcabbage/golinks/types/fs"
-	"github.com/laughingcabbage/golinks/types/walker"
-	"github.com/pkg/errors"
 )
 
 //OutputName stores the default file name archive metadata
