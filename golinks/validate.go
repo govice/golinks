@@ -19,7 +19,7 @@ package main
 import (
 	"log"
 
-	"github.com/LaughingCabbage/golinks/types/blockmap"
+	"github.com/laughingcabbage/golinks/types/blockmap"
 	"github.com/urfave/cli"
 )
 

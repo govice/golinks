@@ -42,6 +42,7 @@ func TestBlockMap_PrintBlockMap(t *testing.T) {
 		t.Error(err)
 	}
 	//b.PrintBlockMap()
+
 }
 
 func TestEqual(t *testing.T) {

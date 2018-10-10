@@ -27,7 +27,7 @@ import (
 
 	"io"
 
-	"github.com/LaughingCabbage/golinks/types/walker"
+	"github.com/laughingcabbage/golinks/types/walker"
 	"github.com/pkg/errors"
 )
 
