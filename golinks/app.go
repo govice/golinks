@@ -17,9 +17,9 @@
 package main
 
 import (
+	"github.com/laughingcabbage/golinks/types/walker"
 	"os"
 
-	"github.com/laughingcabbage/golinks/types/walker"
 	"github.com/urfave/cli"
 )
 

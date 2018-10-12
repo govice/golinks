@@ -22,5 +22,13 @@ jobs:
       - checkout
 
       # specify any bash command here prefixed with `run: `
+      - run:
+          name: Update PATH and Define Environment Variable at Runtime
+          command: |
+            echo 'export TEST_ROOT="$CIRCLE_WORKING_DIRECTORY/testing"' >> $BASH_ENV
+            echo 'export TEST_DIR="$CIRCLE_WORKING_DIRECTORY/testing"' >> $BASH_ENV
+            source $BASH_ENV
       - run: go get -v -t -d ./...
+      - run: go install github.com/laughingcabbage/golinks/golinks
+      - run: golinks maketest . -medium
       - run: go test -v ./...

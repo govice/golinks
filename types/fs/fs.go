@@ -19,6 +19,7 @@ package fs
 import (
 	"crypto/sha512"
 	"encoding/gob"
+	"github.com/laughingcabbage/golinks/types/walker"
 	"os"
 
 	"path/filepath"
@@ -27,7 +28,6 @@ import (
 
 	"io"
 
-	"github.com/laughingcabbage/golinks/types/walker"
 	"github.com/pkg/errors"
 )
 

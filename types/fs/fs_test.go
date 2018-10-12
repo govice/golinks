@@ -18,6 +18,7 @@ package fs
 
 import (
 	"fmt"
+	"github.com/laughingcabbage/golinks/types/blockchain"
 	"io/ioutil"
 	"math/rand"
 	"os"
@@ -25,7 +26,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/laughingcabbage/golinks/types/blockchain"
 	"github.com/pkg/errors"
 )
 
