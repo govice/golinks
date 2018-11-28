@@ -34,6 +34,7 @@ func init() {
 	rootCmd.AddCommand(configCmd)
 	configCmd.AddCommand(printConfigCmd)
 
+	buildTestCmd.AddCommand(cleanTestCmd)
 	buildTestCmd.Flags().StringVarP(&testSize, "size", "s", "", "Test size [small, medium, large] (required)")
 	if err := buildTestCmd.MarkFlagRequired("size"); err != nil {
 		panic(err)

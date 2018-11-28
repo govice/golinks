@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -26,6 +25,18 @@ var buildTestCmd = &cobra.Command{
 	},
 }
 
+var cleanTestCmd = &cobra.Command{
+	Use:   "clean",
+	Short: "Clean test directory",
+	Run: func(cmd *cobra.Command, args []string) {
+		if err := cleanTestDir(); err != nil {
+			log.Println(err)
+			cmd.Help()
+		}
+
+	},
+}
+
 const (
 	testDirs    int = 10
 	testDirSize int = 10
@@ -35,9 +46,6 @@ const (
 )
 
 var testSize string
-
-// TODO config property
-var testPath = string(os.PathSeparator) + "testing"
 
 type test struct {
 	ArchiveSize   int
@@ -77,7 +85,6 @@ func buildTestDir(size string) error {
 	if err := generateTestDir(testPath, testConfig); err != nil {
 		return err
 	}
-	fmt.Println(testConfig)
 	return nil
 }
 
@@ -123,4 +130,13 @@ func verifyPath(path string) (bool, error) {
 		return false, nil
 	}
 	return true, err
+}
+
+func cleanTestDir() error {
+	testPath := viper.Get("testpath").(string)
+	log.Println("removing " + testPath)
+	if err := os.RemoveAll(testPath); err != nil {
+		return err
+	}
+	return nil
 }
