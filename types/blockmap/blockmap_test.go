@@ -24,9 +24,10 @@ import (
 )
 
 func TestBlockMap_New(t *testing.T) {
-	b := New(os.Getenv("TEST_ROOT"))
+	path := os.Getenv("TEST_ROOT")
+	b := New(path)
 	if b == nil {
-		t.Error(errors.New("blockmap: failed to make new blockmap"))
+		t.Error(errors.New("blockmap: failed to make new blockmap | " + path))
 	}
 }
 
