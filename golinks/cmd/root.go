@@ -39,6 +39,8 @@ func init() {
 	if err := buildTestCmd.MarkFlagRequired("size"); err != nil {
 		panic(err)
 	}
+
+	rootCmd.AddCommand(walkCmd)
 }
 
 func initConfig() {
