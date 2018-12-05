@@ -43,6 +43,8 @@ func init() {
 	rootCmd.AddCommand(walkCmd)
 
 	rootCmd.AddCommand(linkCmd)
+
+	rootCmd.AddCommand(validateCmd)
 }
 
 func initConfig() {
