@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/laughingcabbage/golinks/types/blockmap"
@@ -15,6 +16,11 @@ var linkCmd = &cobra.Command{
 	// Long:  "Build out an archive to test on based according to the preferred size",
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Println(args)
+		if len(args) < 1 {
+			fmt.Println("link: missing arguments for command")
+			cmd.Help()
+		}
+
 		if err := link(args[0], cmd); err != nil {
 			log.Println(err)
 			cmd.Help()
