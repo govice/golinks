@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/laughingcabbage/golinks/types/blockmap"
@@ -34,12 +33,11 @@ func validate(path string, cmd *cobra.Command) error {
 
 	//Load blockmap from existing file
 	log.Println("checking for existing link file")
-	fileBlockmap := &blockmap.BlockMap{}
+	fileBlockmap := blockmap.New(path)
 	if err := fileBlockmap.Load(path); err != nil {
 		return err
 	}
-	fmt.Println("original hash")
-	fmt.Println(fileBlockmap.RootHash)
+
 	//Validate the existing directory
 	log.Println("validating link file with current archive")
 	temp := blockmap.New(path)
@@ -48,9 +46,6 @@ func validate(path string, cmd *cobra.Command) error {
 	}
 
 	//Compare file with existing directory
-	fmt.Println("post gen hash")
-	fmt.Println(fileBlockmap.RootHash)
-	fmt.Println(temp.RootHash)
 	if !blockmap.Equal(fileBlockmap, temp) {
 		return errors.New("invalid link")
 	}
