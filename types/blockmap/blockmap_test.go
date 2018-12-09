@@ -25,7 +25,6 @@ import (
 	"log"
 	"math/rand"
 	"os"
-	"reflect"
 	"strconv"
 	"testing"
 	"time"
@@ -93,9 +92,9 @@ func TestBlockMap_PrintBlockMap(t *testing.T) {
 	t.Skip()
 	b := New(tmpDir)
 	if err := b.Generate(); err != nil {
+		b.PrintBlockMap()
 		t.Error(err)
 	}
-	//b.PrintBlockMap()
 
 }
 
@@ -116,83 +115,70 @@ func TestEqual(t *testing.T) {
 		t.Error(errors.New("blockmap: failed to evaluate equal blockmaps"))
 	}
 
-	c := &BlockMap{}
+	c := New(tmpDir)
 	if Equal(a, c) {
 		t.Error(errors.New("blockmap: evaluated equality in unequal blockmaps"))
 	}
 }
 
 func TestBlockMap_IO(t *testing.T) {
-	b := New(tmpDir)
-	if err := b.Generate(); err != nil {
-		t.Error(err)
-	}
+	for i := 0; i < 10; i++ {
+		b := New(tmpDir)
+		if err := b.Generate(); err != nil {
+			t.Error(err)
+		}
 
-	originalBHash := make([]byte, len(b.RootHash))
-	copy(originalBHash, b.RootHash)
+		//Save the blockmap
+		if err := b.Save(b.Root); err != nil {
+			t.Error(err)
+		}
 
-	//Save the blockmap
-	if err := b.Save(b.Root); err != nil {
-		t.Error(err)
-	}
-	//Load the blockmap in a new structure
-	var a = &BlockMap{}
-	fmt.Println("loading link file at: " + b.Root)
-	if err := a.Load(b.Root); err != nil {
-		t.Error(err)
-	}
+		//Load the blockmap in a new structure
+		a := New(tmpDir)
+		fmt.Println("loading link file at: " + b.Root)
+		if err := a.Load(b.Root); err != nil {
+			t.Error(err)
+		}
 
-	originalAHash := make([]byte, len(a.RootHash))
-	copy(originalAHash, a.RootHash)
-	//Ensure both maps are equal
-	if !Equal(b, a) {
-		t.Error(errors.New("BlockMapIO failed to reload map"))
-	}
+		//Ensure both maps are equal
+		if !Equal(b, a) {
+			t.Error(errors.New("BlockMapIO failed to reload map"))
+		}
 
-	//Re-generate the link and validate it with the current file
-
-	if err := a.Generate(); err != nil {
-		t.Error(err)
+		//Re-generate the link and validate it with the current file
+		if err := a.Generate(); err != nil {
+			t.Error(err)
+		}
 	}
-	if !Equal(b, a) {
-		t.Error(errors.New("BlockMapIO original and reloaded blockmaps are unequal"))
-	}
-
-	if !bytes.Equal(b.RootHash, originalBHash) {
-		t.Error("original B hash and newly generated B hashes are different")
-	}
-
-	if !bytes.Equal(a.RootHash, originalAHash) {
-		t.Error("original A and newly generated A hash are different")
-	}
-
 }
 
 func TestBlockMap_JSON(t *testing.T) {
-	b := New(tmpDir)
-	if err := b.Generate(); err != nil {
+	b1 := New(tmpDir)
+	if err := b1.Generate(); err != nil {
 		t.Error(err)
 	}
 
-	fmt.Println("original")
-	fmt.Println(b)
-	jsonMap, err := json.Marshal(b)
+	b1JSON, err := json.Marshal(b1)
 	if err != nil {
 		t.Error(err)
 	}
 
-	fmt.Println(string(jsonMap))
+	fmt.Println("b1 JSON")
+	fmt.Println(string(b1JSON))
 
-	var bOut *BlockMap
-
-	if err := json.Unmarshal(jsonMap, &bOut); err != nil {
+	b2 := New(tmpDir)
+	if err := b2.Generate(); err != nil {
 		t.Error(err)
 	}
 
-	fmt.Println("out")
-	fmt.Println(bOut)
+	b2JSON, err := json.Marshal(b2)
+	if err != nil {
+		t.Error(err)
+	}
+	fmt.Println("b2 JSON")
+	fmt.Println(string(b2JSON))
 
-	if !reflect.DeepEqual(b, bOut) {
+	if !bytes.Equal(b1JSON, b2JSON) {
 		t.Error("blockmap: json input and output are not equal")
 	}
 }

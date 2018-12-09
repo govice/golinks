@@ -21,6 +21,8 @@ import (
 	"log"
 	"path/filepath"
 
+	"github.com/laughingcabbage/golinks/types/archivemap"
+
 	"github.com/laughingcabbage/golinks/types/fs"
 	"github.com/laughingcabbage/golinks/types/walker"
 	"github.com/pkg/errors"
@@ -28,7 +30,6 @@ import (
 	"bytes"
 	"crypto/sha512"
 
-	"encoding/gob"
 	"encoding/json"
 
 	"fmt"
@@ -41,15 +42,15 @@ const OutputName string = ".link"
 
 //BlockMap is a ad-hoc Merkle tree-map
 type BlockMap struct {
-	Archive  map[string][]byte `json:"archive"`
-	RootHash []byte            `json:"rootHash"`
-	Root     string            `json:"root"`
+	Archive  archivemap.ArchiveMap `json:"archive"`
+	RootHash []byte                `json:"rootHash"`
+	Root     string                `json:"root"`
 }
 
 //New returns a new BlockMap initialized at the provided root
 func New(root string) *BlockMap {
 	//Initialize map and assign blockmap root
-	rootMap := make(map[string][]byte)
+	rootMap := make(archivemap.ArchiveMap)
 	return &BlockMap{Archive: rootMap, RootHash: nil, Root: root}
 }
 
@@ -87,34 +88,30 @@ func (b *BlockMap) Generate() error {
 
 	//If we're here, the entries are successful so we'll hash the blockmap.
 	if err := b.hashBlockMap(); err != nil {
-		return errors.Wrap(err, "BlockMap: failed to generate block map")
+		return errors.Wrap(err, "blockmap: failed to generate block map")
 	}
 
 	return nil
-
 }
 
 func (b *BlockMap) hashBlockMap() error {
 	//Make sure an archive exists
 	if b.Archive == nil {
-		return errors.New("hashBlockMap: Attempted to hash null archive")
+		return errors.New("blockmap: Attempted to hash null archive")
 	}
 
 	//TODO hash json
 	//Begin hashing blockmap gob
 	hash := sha512.New()
-	buffer := new(bytes.Buffer)
-	encoder := gob.NewEncoder(buffer)
-	err := encoder.Encode(b.Archive)
+	archiveJSON, err := json.Marshal(b.Archive)
 	if err != nil {
-		return errors.Wrap(err, "hashBlockMap: failed to encode archive map")
+		return errors.Wrap(err, "blockmap: hash failed to encode archive map JSON")
 	}
-	if _, err := hash.Write(buffer.Bytes()); err != nil {
-		return errors.Wrap(err, "hashBlockMap: failed to write to write hash buffer")
+	if _, err := hash.Write(archiveJSON); err != nil {
+		return errors.Wrap(err, "blockmap: failed to write to write hash buffer")
 	}
 
 	b.RootHash = hash.Sum(nil)
-
 	return nil
 
 }
