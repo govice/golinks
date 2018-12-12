@@ -17,45 +17,96 @@
 package blockmap
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"math/rand"
 	"os"
+	"strconv"
 	"testing"
+	"time"
 )
 
+var tmpDir string
+
+func TestMain(m *testing.M) {
+	//Generate initial blockmap from the test root
+	tmpDir, _ = ioutil.TempDir(".", "test")
+	cwd, _ := os.Getwd()
+	tmpDir = cwd + string(os.PathSeparator) + tmpDir
+	fmt.Println("tmpdir: " + tmpDir)
+
+	for i := 0; i < 2; i++ {
+		iStr := strconv.Itoa(i)
+		log.Println("Creating Archive " + iStr)
+		subTmpdir, err := ioutil.TempDir(tmpDir, "test"+iStr)
+		if err != nil {
+			panic(err)
+		}
+		//Write random data to files
+		r := rand.New(rand.NewSource(time.Now().UnixNano()))
+		for j := 0; j < 1; j++ {
+			jStr := strconv.Itoa(j)
+			buff := make([]byte, 100)
+			r.Read(buff)
+			tmpfile, err := ioutil.TempFile(subTmpdir, "file"+jStr)
+			if err != nil {
+				panic(err)
+			}
+
+			if _, err := tmpfile.Write(buff); err != nil {
+				panic(err)
+			}
+			if err := tmpfile.Close(); err != nil {
+				panic(err)
+			}
+		}
+	}
+
+	result := m.Run()
+	fmt.Println("Tearing Down")
+	os.RemoveAll(tmpDir)
+	os.Exit(result)
+}
+
 func TestBlockMap_New(t *testing.T) {
-	b := New(os.Getenv("TEST_ROOT"))
+	path := tmpDir
+	b := New(path)
 	if b == nil {
-		t.Error(errors.New("blockmap: failed to make new blockmap"))
+		t.Error(errors.New("blockmap: failed to make new blockmap | " + path))
 	}
 }
 
 func TestBlockMap_Generate(t *testing.T) {
-	b := New(os.Getenv("TEST_ROOT"))
+	t.Log(tmpDir)
+	b := New(tmpDir)
 	if err := b.Generate(); err != nil {
-		t.Error(err)
+		t.Error(err, tmpDir)
 	}
 }
 
 func TestBlockMap_PrintBlockMap(t *testing.T) {
 	t.Skip()
-	b := New(os.Getenv("TEST_ROOT"))
+	b := New(tmpDir)
 	if err := b.Generate(); err != nil {
+		b.PrintBlockMap()
 		t.Error(err)
 	}
-	//b.PrintBlockMap()
 
 }
 
 func TestEqual(t *testing.T) {
 	//Initialize A
-	a := New(os.Getenv("TEST_ROOT"))
-	fmt.Println(os.Getenv("TEST_ROOT"))
+	a := New(tmpDir)
+	fmt.Println(tmpDir)
 	if err := a.Generate(); err != nil {
 		t.Error(err)
 	}
 	//Initialize B
-	b := New(os.Getenv("TEST_ROOT"))
+	b := New(tmpDir)
 	if err := b.Generate(); err != nil {
 		t.Error(err)
 	}
@@ -64,32 +115,70 @@ func TestEqual(t *testing.T) {
 		t.Error(errors.New("blockmap: failed to evaluate equal blockmaps"))
 	}
 
-	c := &BlockMap{}
+	c := New(tmpDir)
 	if Equal(a, c) {
 		t.Error(errors.New("blockmap: evaluated equality in unequal blockmaps"))
 	}
-
 }
 
 func TestBlockMap_IO(t *testing.T) {
-	//Generate initial blockmap from the test root
-	b := New(os.Getenv("TEST_ROOT"))
-	if err := b.Generate(); err != nil {
+	for i := 0; i < 10; i++ {
+		b := New(tmpDir)
+		if err := b.Generate(); err != nil {
+			t.Error(err)
+		}
+
+		//Save the blockmap
+		if err := b.Save(b.Root); err != nil {
+			t.Error(err)
+		}
+
+		//Load the blockmap in a new structure
+		a := New(tmpDir)
+		fmt.Println("loading link file at: " + b.Root)
+		if err := a.Load(b.Root); err != nil {
+			t.Error(err)
+		}
+
+		//Ensure both maps are equal
+		if !Equal(b, a) {
+			t.Error(errors.New("BlockMapIO failed to reload map"))
+		}
+
+		//Re-generate the link and validate it with the current file
+		if err := a.Generate(); err != nil {
+			t.Error(err)
+		}
+	}
+}
+
+func TestBlockMap_JSON(t *testing.T) {
+	b1 := New(tmpDir)
+	if err := b1.Generate(); err != nil {
 		t.Error(err)
 	}
 
-	//Save the blockmap
-	if err := b.Save(b.Root); err != nil {
+	b1JSON, err := json.Marshal(b1)
+	if err != nil {
 		t.Error(err)
-	}
-	//Load the blockmap in a new structure
-	a := &BlockMap{}
-	if err := a.Load(b.Root); err != nil {
-		t.Error(err)
-	}
-	//Ensure both maps are equal
-	if !Equal(b, a) {
-		t.Error(errors.New("BlockMapIO failed to reload map"))
 	}
 
+	fmt.Println("b1 JSON")
+	fmt.Println(string(b1JSON))
+
+	b2 := New(tmpDir)
+	if err := b2.Generate(); err != nil {
+		t.Error(err)
+	}
+
+	b2JSON, err := json.Marshal(b2)
+	if err != nil {
+		t.Error(err)
+	}
+	fmt.Println("b2 JSON")
+	fmt.Println(string(b2JSON))
+
+	if !bytes.Equal(b1JSON, b2JSON) {
+		t.Error("blockmap: json input and output are not equal")
+	}
 }

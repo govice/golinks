@@ -17,16 +17,20 @@
 package blockmap
 
 import (
+	"io/ioutil"
+	"log"
+	"path/filepath"
+
+	"github.com/laughingcabbage/golinks/types/archivemap"
+
 	"github.com/laughingcabbage/golinks/types/fs"
 	"github.com/laughingcabbage/golinks/types/walker"
 	"github.com/pkg/errors"
-	"log"
-	"path/filepath"
 
 	"bytes"
 	"crypto/sha512"
 
-	"encoding/gob"
+	"encoding/json"
 
 	"fmt"
 
@@ -38,15 +42,15 @@ const OutputName string = ".link"
 
 //BlockMap is a ad-hoc Merkle tree-map
 type BlockMap struct {
-	Archive  map[string][]byte
-	RootHash []byte
-	Root     string
+	Archive  archivemap.ArchiveMap `json:"archive"`
+	RootHash []byte                `json:"rootHash"`
+	Root     string                `json:"root"`
 }
 
 //New returns a new BlockMap initialized at the provided root
 func New(root string) *BlockMap {
 	//Initialize map and assign blockmap root
-	rootMap := make(map[string][]byte)
+	rootMap := make(archivemap.ArchiveMap)
 	return &BlockMap{Archive: rootMap, RootHash: nil, Root: root}
 }
 
@@ -84,34 +88,30 @@ func (b *BlockMap) Generate() error {
 
 	//If we're here, the entries are successful so we'll hash the blockmap.
 	if err := b.hashBlockMap(); err != nil {
-		return errors.Wrap(err, "BlockMap: failed to has block map")
+		return errors.Wrap(err, "blockmap: failed to generate block map")
 	}
 
 	return nil
-
 }
 
 func (b *BlockMap) hashBlockMap() error {
 	//Make sure an archive exists
 	if b.Archive == nil {
-		return errors.New("hashBlockMap: Attempted to hash null archive")
+		return errors.New("blockmap: Attempted to hash null archive")
 	}
 
+	//TODO hash json
 	//Begin hashing blockmap gob
 	hash := sha512.New()
-	buffer := new(bytes.Buffer)
-	encoder := gob.NewEncoder(buffer)
-	err := encoder.Encode(b.Archive)
+	archiveJSON, err := json.Marshal(b.Archive)
 	if err != nil {
-		return errors.Wrap(err, "hashBlockMap: failed to encode archive map")
+		return errors.Wrap(err, "blockmap: hash failed to encode archive map JSON")
 	}
-	if _, err := hash.Write(buffer.Bytes()); err != nil {
-		return errors.Wrap(err, "hashBlockMap: failed to write to write hash buffer")
+	if _, err := hash.Write(archiveJSON); err != nil {
+		return errors.Wrap(err, "blockmap: failed to write to write hash buffer")
 	}
 
 	b.RootHash = hash.Sum(nil)
-	fmt.Println("HASH BLOCK MAP")
-	fmt.Println(b.RootHash)
 	return nil
 
 }
@@ -129,40 +129,33 @@ func (b BlockMap) PrintBlockMap() {
 }
 
 //Save will store a byte file of the blockmap in the default OutputFile
-//todo test
 func (b BlockMap) Save(path string) error {
 	if b.RootHash == nil {
 		return errors.New("BlockMap: can't save nil hashed map")
 	}
-	fmt.Println(path)
-	linkFile, err := os.OpenFile(path+string(os.PathSeparator)+OutputName, os.O_RDWR|os.O_CREATE, 0755)
+
+	jsonBytes, err := json.Marshal(b)
 	if err != nil {
-		return errors.Wrap(err, "BlockMap: failed to save link file")
+		return errors.Wrap(err, "BlockMap: failed to encode link json")
+	}
+	linkFilePath := path + string(os.PathSeparator) + OutputName
+	if err := ioutil.WriteFile(linkFilePath, jsonBytes, 0755); err != nil {
+		return errors.Wrap(err, "BlockMap: failed to write to link")
 	}
 
-	//todo validate file write
-	encoder := gob.NewEncoder(linkFile)
-	if err = encoder.Encode(b); err != nil {
-		return errors.Wrap(err, "BlockMap: failed to encode link file")
-	}
-	if err := linkFile.Close(); err != nil {
-		return errors.Wrap(err, "BlockMap: failed to close link file")
-	}
 	return nil
 }
 
 //Load reads the blockmap from the default OutputFile
 func (b *BlockMap) Load(path string) error {
-	file, err := os.Open(path + string(os.PathSeparator) + OutputName)
+	linkFilePath := path + string(os.PathSeparator) + OutputName
+	jsonBytes, err := ioutil.ReadFile(linkFilePath)
 	if err != nil {
-		return errors.Wrap(err, "BlockMap: failed to open link file")
+		return errors.Wrap(err, "BlockMap: failed to read link file")
 	}
-	decoder := gob.NewDecoder(file)
-	if err = decoder.Decode(b); err != nil {
-		return errors.Wrap(err, "BlockMap: failed to decode blockmap")
-	}
-	if err = file.Close(); err != nil {
-		return errors.Wrap(err, "BlockMap: failed to close link file")
+
+	if err := json.Unmarshal(jsonBytes, &b); err != nil {
+		return errors.Wrap(err, "BlockMap failed to unmarshal link json")
 	}
 
 	return nil
@@ -170,7 +163,7 @@ func (b *BlockMap) Load(path string) error {
 
 //Equal returns an evaluation of the equality of two blockmaps
 func Equal(a, b *BlockMap) bool {
-	if a.Root != b.Root && !bytes.Equal(a.RootHash, b.RootHash) {
+	if (a.Root != b.Root) || !bytes.Equal(a.RootHash, b.RootHash) {
 		return false
 	}
 	return true

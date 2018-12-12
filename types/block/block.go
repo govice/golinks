@@ -27,11 +27,11 @@ import (
 
 //Block type structures a blockchain block by encapsulating vital components including index, timestamp, payload, and hashes.
 type Block struct {
-	Index      int
-	Timestamp  int64
-	Data       []byte
-	Parenthash []byte
-	Blockhash  []byte
+	Index      int    `json:"index"`
+	Timestamp  int64  `json:"timestamp"`
+	Data       []byte `json:"data"`
+	Parenthash []byte `json:"parentHash"`
+	Blockhash  []byte `json:"blockhash"`
 }
 
 //New creates a new blockchain block and initializes index, payload data, and hashes.
