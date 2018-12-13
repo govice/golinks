@@ -3,12 +3,16 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/laughingcabbage/golinks/types/blockmap"
+	"github.com/pierrre/archivefile/zip"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/urfave/cli"
 )
+
+var zipArchive bool
 
 var linkCmd = &cobra.Command{
 	Use:   "link",
@@ -20,10 +24,18 @@ var linkCmd = &cobra.Command{
 			fmt.Println("link: missing arguments for command")
 			cmd.Help()
 		}
-
-		if err := link(args[0], cmd); err != nil {
+		archivePath := args[0]
+		if err := link(archivePath, cmd); err != nil {
 			log.Println(err)
 			cmd.Help()
+		}
+
+		if zipArchive {
+			fmt.Println("ZIP ARCHIVE")
+			if err := zipArchiveF(archivePath); err != nil {
+				log.Println(err)
+				// cmd.Help()
+			}
 		}
 	},
 }
@@ -48,5 +60,25 @@ func link(path string, cmd *cobra.Command) error {
 	if err := blkmap.Save(path); err != nil {
 		return err
 	}
+	return nil
+}
+
+func zipArchiveF(path string) error {
+	archive, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+
+	defer archive.Close()
+	outPath := path + ".zip"
+	progress := func(outPath string) {
+		fmt.Println(outPath)
+	}
+
+	err = zip.ArchiveFile(path, outPath, progress)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

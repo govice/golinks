@@ -42,6 +42,7 @@ func init() {
 
 	rootCmd.AddCommand(walkCmd)
 
+	linkCmd.Flags().BoolVarP(&zipArchive, "zip", "z", false, "zip archive after linking")
 	rootCmd.AddCommand(linkCmd)
 
 	rootCmd.AddCommand(validateCmd)
