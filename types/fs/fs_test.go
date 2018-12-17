@@ -1,5 +1,5 @@
 /*
- *Copyright 2017 Kevin Gentile
+ *Copyright 2018 Kevin Gentile
  *
  *Licensed under the Apache License, Version 2.0 (the "License");
  *you may not use this file except in compliance with the License.
@@ -18,13 +18,14 @@ package fs
 
 import (
 	"fmt"
-	"github.com/laughingcabbage/golinks/types/blockchain"
 	"io/ioutil"
 	"math/rand"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/laughingcabbage/golinks/types/blockchain"
 
 	"github.com/pkg/errors"
 )
