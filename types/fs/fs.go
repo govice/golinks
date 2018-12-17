@@ -1,5 +1,5 @@
 /*
- *Copyright 2017 Kevin Gentile
+ *Copyright 2018 Kevin Gentile
  *
  *Licensed under the Apache License, Version 2.0 (the "License");
  *you may not use this file except in compliance with the License.
@@ -19,8 +19,9 @@ package fs
 import (
 	"crypto/sha512"
 	"encoding/gob"
-	"github.com/laughingcabbage/golinks/types/walker"
 	"os"
+
+	"github.com/laughingcabbage/golinks/types/walker"
 
 	"path/filepath"
 
