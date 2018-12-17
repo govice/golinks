@@ -20,6 +20,8 @@ import (
 	"io/ioutil"
 	"log"
 	"path/filepath"
+	"reflect"
+	"strings"
 
 	"github.com/laughingcabbage/golinks/types/archivemap"
 
@@ -81,6 +83,9 @@ func (b *BlockMap) Generate() error {
 		if err != nil {
 			return errors.Wrap(err, "BlockMap: failed to hash "+filePath)
 		}
+
+		//Use linux path seperator
+		relPath = strings.Replace(relPath, "\\", "/", -1)
 
 		//Add the hash to the archive using the relative path as it's key
 		b.Archive[relPath] = fileHash
@@ -163,8 +168,19 @@ func (b *BlockMap) Load(path string) error {
 
 //Equal returns an evaluation of the equality of two blockmaps
 func Equal(a, b *BlockMap) bool {
-	if (a.Root != b.Root) || !bytes.Equal(a.RootHash, b.RootHash) {
+	if !bytes.Equal(a.RootHash, b.RootHash) {
 		return false
 	}
-	return true
+
+	aJSON, err := json.Marshal(a.Archive)
+	if err != nil {
+		panic(err)
+	}
+
+	bJSON, err := json.Marshal(b.Archive)
+	if err != nil {
+		panic(err)
+	}
+
+	return reflect.DeepEqual(aJSON, bJSON)
 }
