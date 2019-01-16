@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/laughingcabbage/golinks/types/blockchain"
+	"github.com/laughingcabbage/golinks/blockchain"
 )
 
 func checkEnv() {

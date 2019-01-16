@@ -8,10 +8,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/laughingcabbage/golinks/types/block"
+	"github.com/laughingcabbage/golinks/block"
 
 	"github.com/gorilla/mux"
-	"github.com/laughingcabbage/golinks/types/blockchain"
+	"github.com/laughingcabbage/golinks/blockchain"
 )
 
 // Info contains the version, status of this program

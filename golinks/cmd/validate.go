@@ -19,7 +19,7 @@ package cmd
 import (
 	"log"
 
-	"github.com/laughingcabbage/golinks/types/blockmap"
+	"github.com/laughingcabbage/golinks/blockmap"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )

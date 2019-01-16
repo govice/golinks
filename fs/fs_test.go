@@ -25,7 +25,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/laughingcabbage/golinks/types/blockchain"
+	"github.com/laughingcabbage/golinks/blockchain"
 
 	"github.com/pkg/errors"
 )

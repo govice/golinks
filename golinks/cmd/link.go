@@ -21,7 +21,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/laughingcabbage/golinks/types/blockmap"
+	"github.com/laughingcabbage/golinks/blockmap"
 	"github.com/pierrre/archivefile/zip"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
