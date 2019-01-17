@@ -45,7 +45,7 @@ func main() {
 	router.HandleFunc("/healthcheck", healthCheckHandler).Methods("GET")
 	router.HandleFunc("/", rootHandler).Methods("GET")
 	router.HandleFunc("/chain", getChainHandler).Methods("GET")
-	router.HandleFunc("/chain", postBlockHandler).Methods("POST")
+	// router.HandleFunc("/chain", postBlockHandler).Methods("POST")
 
 	server := &http.Server{
 		Handler:      router,

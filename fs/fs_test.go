@@ -34,7 +34,7 @@ func TestHashFile(t *testing.T) {
 	//create files to test
 	var TestPath, _ = filepath.Abs(filepath.Dir(os.Args[0]) + "/testHome/") //Testing Root
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	if err := os.Mkdir(TestPath, 0644); err != nil {
+	if err := os.Mkdir(TestPath, 0755); err != nil {
 		t.Error(err)
 	}
 	//remove files after testing

@@ -43,7 +43,7 @@ func TestWalker_Walker(t *testing.T) {
 
 	//create files to test
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	if err := os.Mkdir(TestPath, 0644); err != nil {
+	if err := os.Mkdir(TestPath, 0755); err != nil {
 		t.Error(err)
 	}
 	//remove files after testing
