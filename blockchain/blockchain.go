@@ -19,7 +19,7 @@ package blockchain
 import (
 	"math/rand"
 
-	"github.com/laughingcabbage/golinks/block"
+	"github.com/govice/golinks/block"
 
 	"encoding/gob"
 	"fmt"

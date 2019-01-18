@@ -19,7 +19,7 @@ package cmd
 import (
 	"log"
 
-	"github.com/laughingcabbage/golinks/walker"
+	"github.com/govice/golinks/walker"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
