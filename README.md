@@ -1,16 +1,16 @@
 # golinks
-goLinks was created to realize a blockchain implemented in Go. This project has grown beyond it's initial scope into a
-blockchain and filesystem library as well as a command line tool. Updates to come.
+Golinks is a command line tool and library used to deep-hash file systems. This project is still under early development and subject to frequent change.
+
 ## Author 
 Kevin Gentile
     
-Contact: kevin@kevingentile.com
+Contact: kevin@govice.org
 
 
 # Installation
 ```
-go get -u github.com/laughingcabbage/golinks
-go install github.com/laughingcabbage/golinks
+go get -u github.com/govice/golinks
+go install github.com/govice/golinks
 golinks -h
 ```
 
@@ -73,12 +73,12 @@ It can be useful to specify enviornment variables for testing
 
     ### GoDoc
 
-#### [block](https://godoc.org/github.com/laughingcabbage/goLinks/block)
+#### [block](https://godoc.org/github.com/govice/goLinks/block)
 
-#### [blockchain](https://godoc.org/github.com/laughingcabbage/goLinks/blockchain)
+#### [blockchain](https://godoc.org/github.com/govice/goLinks/blockchain)
 
-#### [blockmap](https://godoc.org/github.com/laughingcabbage/goLinks/blockmap)
+#### [blockmap](https://godoc.org/github.com/govice/goLinks/blockmap)
 
-#### [fs](https://godoc.org/github.com/laughingcabbage/goLinks/fs)
+#### [fs](https://godoc.org/github.com/govice/goLinks/fs)
 
-#### [walker](https://godoc.org/github.com/laughingcabbage/goLinks/walker)
+#### [walker](https://godoc.org/github.com/govice/goLinks/walker)

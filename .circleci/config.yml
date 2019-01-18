@@ -32,3 +32,4 @@ jobs:
       - run: go install github.com/govice/golinks
       - run: golinks buildtest --size medium
       - run: go test -v ./...
+      

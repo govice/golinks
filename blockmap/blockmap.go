@@ -23,10 +23,10 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/laughingcabbage/golinks/archivemap"
+	"github.com/govice/golinks/archivemap"
 
-	"github.com/laughingcabbage/golinks/fs"
-	"github.com/laughingcabbage/golinks/walker"
+	"github.com/govice/golinks/fs"
+	"github.com/govice/golinks/walker"
 	"github.com/pkg/errors"
 
 	"bytes"

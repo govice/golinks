@@ -16,7 +16,7 @@
 
 package main
 
-import "github.com/laughingcabbage/golinks/cmd"
+import "github.com/govice/golinks/cmd"
 
 func main() {
 	cmd.Execute()

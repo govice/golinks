@@ -21,7 +21,7 @@ import (
 	"encoding/gob"
 	"os"
 
-	"github.com/laughingcabbage/golinks/walker"
+	"github.com/govice/golinks/walker"
 
 	"path/filepath"
 
