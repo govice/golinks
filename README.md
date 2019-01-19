@@ -1,10 +1,16 @@
 # golinks
+[![CircleCI](https://circleci.com/gh/govice/golinks/tree/master.svg?style=svg)](https://circleci.com/gh/govice/golinks/tree/master)
+[![codecov](https://codecov.io/gh/govice/golinks/branch/master/graph/badge.svg)](https://codecov.io/gh/govice/golinks)
+[![GoDoc](https://godoc.org/github.com/govice/golinks?status.svg)](https://godoc.org/github.com/govice/golinks)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+
+
 Golinks is a command line tool and library used to deep-hash file systems. This project is still under early development and subject to frequent change.
 
-## Author 
-Kevin Gentile
-    
-Contact: kevin@govice.org
+**Author**:     Kevin Gentile
+
+**Contact**:    kevin@govice.org
 
 
 # Installation
@@ -30,6 +36,16 @@ Determine if a linked archive is valid
 golinks validate ~/[pathToArchive]/archive
 ```
 
+
+# Contributing
+Contributions are welcome. We use a [forking workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/forking-workflow) for all contributions.
+ Check out this article about [working with forked repositories in Go](https://blog.sgmansfield.com/2016/06/working-with-forks-in-go/).
+Be sure to open an issue for any new work. 
+Branch names should be discriptive and append the issue number (ex. `update-readme-123`).
+All pull requests should be "squashed" into a single commit and resolve the commit issue (ex. `[Resolves #123] update readme`). 
+Pull requests should be similarly named and close the issue (ex. `[Closes #123] update readme`).
+
+Happy coding :)
 
 
 # Testing
