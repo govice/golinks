@@ -1,5 +1,5 @@
 /*
- *Copyright 2018 Kevin Gentile
+ *Copyright 2018-2019 Kevin Gentile
  *
  *Licensed under the Apache License, Version 2.0 (the "License");
  *you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package fs
 
 import (
-	"fmt"
 	"io/ioutil"
 	"math/rand"
 	"os"
@@ -25,10 +24,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/govice/golinks/blockchain"
+	"github.com/govice/golinks/block"
 
 	"github.com/pkg/errors"
 )
+
+var genesisBlock = block.NewSHA512(0, []byte("GENESIS"), nil)
 
 func TestHashFile(t *testing.T) {
 	//create files to test
@@ -113,23 +114,24 @@ func TestZip(t *testing.T) {
 
 }
 
-//todo create test folder
-func TestSaveGob(t *testing.T) {
-	fileName := "testFile.link"
-	cwd, _ := os.Getwd()
+//TODO AS JSON
+// //todo create test folder
+// func TestSaveGob(t *testing.T) {
+// 	fileName := "testFile.link"
+// 	cwd, _ := os.Getwd()
 
-	filePath := cwd + string(os.PathSeparator) + fileName
-	fmt.Println(filePath)
-	b := blockchain.New()
-	if err := SaveGob(filePath, b); err != nil {
-		t.Error(err)
-	}
-	defer os.Remove(filePath)
+// 	filePath := cwd + string(os.PathSeparator) + fileName
+// 	fmt.Println(filePath)
+// 	b := blockchain.New(genesisBlock)
+// 	if err := SaveGob(filePath, b); err != nil {
+// 		t.Error(err)
+// 	}
+// 	defer os.Remove(filePath)
 
-	blockChainOut := blockchain.Blockchain{}
-	ReadGob(filePath, &blockChainOut)
+// 	blockChainOut := blockchain.Blockchain{}
+// 	ReadGob(filePath, &blockChainOut)
 
-	if !blockchain.Equal(b, blockChainOut) {
-		t.Error("Gob file not written/read properly")
-	}
-}
+// 	if !blockchain.Equal(b, blockChainOut) {
+// 		t.Error("Gob file not written/read properly")
+// 	}
+// }

@@ -1,5 +1,5 @@
 /*
- *Copyright 2018 Kevin Gentile
+ *Copyright 2018-2019 Kevin Gentile
  *
  *Licensed under the Apache License, Version 2.0 (the "License");
  *you may not use this file except in compliance with the License.
@@ -17,14 +17,11 @@
 package blockchain
 
 import (
-	"math/rand"
+	"bytes"
 
 	"github.com/govice/golinks/block"
 
-	"encoding/gob"
 	"fmt"
-	"os"
-	"time"
 
 	"github.com/pkg/errors"
 )
@@ -35,21 +32,15 @@ type Blockchain []block.Block
 const genesisSize int = 100 //bytes
 
 //New returns a new blockchain and initializes the chain's genesis block.
-func New() Blockchain {
+func New(genesisBlock block.Block) Blockchain {
 	var blkchain Blockchain
-	//create genesis block from random data
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	buffer := make([]byte, genesisSize)
-	r.Read(buffer)
-
-	blk := block.New(0, buffer, nil)
-	blkchain = append(blkchain, blk)
+	blkchain = append(blkchain, genesisBlock)
 	return blkchain
 }
 
 //Add adds a new block to the chain given a payload.
-func (blockchain *Blockchain) Add(data []byte) {
-	blk := block.New(len(*blockchain), data, (*blockchain)[len(*blockchain)-1].Blockhash)
+func (blockchain *Blockchain) AddSHA512(data []byte) {
+	blk := block.NewSHA512(len(*blockchain), data, (*blockchain)[len(*blockchain)-1].Blockhash())
 	*blockchain = append(*blockchain, blk)
 }
 
@@ -75,7 +66,7 @@ func (blockchain Blockchain) Validate() error {
 
 //GetCurrentHash Returns the most recent hash in a blockchain
 func (blockchain Blockchain) GetCurrentHash() []byte {
-	return blockchain[len(blockchain)].Blockhash
+	return blockchain[len(blockchain)].Blockhash()
 }
 
 //UpdateChain returns the longest valid chain given two blockchains.
@@ -112,41 +103,43 @@ func Equal(chainA, chainB Blockchain) bool {
 	}
 
 	for i := 0; i < len(chainA); i++ {
-		if !block.Equal(chainA[i], chainB[i]) {
+		if !bytes.Equal(chainA[i].Blockhash(), chainB[i].Blockhash()) {
 			return false
 		}
 	}
 	return true
 }
 
-//Save saves the blockchain to a .dat file
-func (blockchain Blockchain) Save(name string) error {
-	file, err := os.OpenFile(name+".dat", os.O_RDWR|os.O_CREATE, 0755)
-	if err != nil {
-		return errors.Wrap(err, "Save: failed to open file")
-	}
-	encoder := gob.NewEncoder(file)
-	if err = encoder.Encode(blockchain); err != nil {
-		return errors.Wrap(err, "Save: failed to encode blockchain")
-	}
-	if err = file.Close(); err != nil {
-		return errors.Wrap(err, "Save: failed to close file")
-	}
-	return err
-}
+// //TODO WRITE AS JSON
+// //Save saves the blockchain to a .dat file
+// func (blockchain Blockchain) Save(name string) error {
+// 	file, err := os.OpenFile(name+".dat", os.O_RDWR|os.O_CREATE, 0755)
+// 	if err != nil {
+// 		return errors.Wrap(err, "Save: failed to open file")
+// 	}
+// 	encoder := gob.NewEncoder(file)
+// 	if err = encoder.Encode(blockchain); err != nil {
+// 		return errors.Wrap(err, "Save: failed to encode blockchain")
+// 	}
+// 	if err = file.Close(); err != nil {
+// 		return errors.Wrap(err, "Save: failed to close file")
+// 	}
+// 	return err
+// }
 
-//Load loads a blockchain from a .dat file and initializes the blockchain
-func (blockchain *Blockchain) Load(name string) error {
-	file, err := os.Open(name + ".dat")
-	if err != nil {
-		return errors.Wrap(err, "Load: failed to open file")
-	}
-	decoder := gob.NewDecoder(file)
-	if err = decoder.Decode(blockchain); err != nil {
-		return errors.Wrap(err, "Load: failed to decode blockchain")
-	}
-	if err = file.Close(); err != nil {
-		return errors.Wrap(err, "Load: failed to close file")
-	}
-	return err
-}
+// //TODO LOAD AS JSON
+// //Load loads a blockchain from a .dat file and initializes the blockchain
+// func (blockchain *Blockchain) Load(name string) error {
+// 	file, err := os.Open(name + ".dat")
+// 	if err != nil {
+// 		return errors.Wrap(err, "Load: failed to open file")
+// 	}
+// 	decoder := gob.NewDecoder(file)
+// 	if err = decoder.Decode(blockchain); err != nil {
+// 		return errors.Wrap(err, "Load: failed to decode blockchain")
+// 	}
+// 	if err = file.Close(); err != nil {
+// 		return errors.Wrap(err, "Load: failed to close file")
+// 	}
+// 	return err
+// }
