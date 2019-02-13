@@ -1,5 +1,5 @@
 /*
- *Copyright 2018 Kevin Gentile
+ *Copyright 2018-2019 Kevin Gentile
  *
  *Licensed under the Apache License, Version 2.0 (the "License");
  *you may not use this file except in compliance with the License.
@@ -115,7 +115,7 @@ func Execute() {
 	}
 }
 
-// var userLicense = `Copyright 2018-2018 Kevin Gentile
+// var userLicense = `Copyright 2018-2019 Kevin Gentile
 
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
