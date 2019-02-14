@@ -16,7 +16,9 @@
 
 package block
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 //Basic is the skeleton used to implement a block
 type Basic struct {
@@ -25,14 +27,6 @@ type Basic struct {
 	data       []byte
 	parenthash []byte
 	blockhash  []byte
-}
-
-type BasicJSON struct {
-	Index      int    `json:"index"`
-	Timestamp  int64  `json:"timestamp"`
-	Data       []byte `json:"data"`
-	Parenthash []byte `json:"parentHash"`
-	Blockhash  []byte `json:"blockhash"`
 }
 
 // Index returns the index of the block
@@ -55,18 +49,12 @@ func (block Basic) Data() []byte { return block.data }
 
 // MarshalJSON marshals a block JSON
 func (block *Basic) MarshalJSON() ([]byte, error) {
-	return json.Marshal(BasicJSON{
-		Index:      block.Index(),
-		Timestamp:  block.Timestamp(),
-		Parenthash: block.Parenthash(),
-		Blockhash:  block.Blockhash(),
-		Data:       block.Data(),
-	})
+	return json.Marshal(block.JSON())
 }
 
 // UnmarshalJSON unmarshals a block JSON
 func (block *Basic) UnmarshalJSON(bytes []byte) error {
-	holder := &BasicJSON{}
+	holder := &BlockJSON{}
 
 	if err := json.Unmarshal(bytes, &holder); err != nil {
 		return err
@@ -82,11 +70,44 @@ func (block *Basic) UnmarshalJSON(bytes []byte) error {
 }
 
 // Serialize returns the json for a block object
-func (block *Basic) Serialize() ([]byte, error) {
-	jsonBytes, err := json.Marshal(block)
+func (block Basic) Serialize() ([]byte, error) {
+	jsonBlock := BlockJSON{
+		Index:      block.Index(),
+		Timestamp:  block.Timestamp(),
+		Parenthash: append([]byte{}, block.Parenthash()...),
+		Data:       append([]byte{}, block.Data()...),
+	}
+	jsonBytes, err := json.Marshal(jsonBlock)
 	if err != nil {
 		return nil, err
 	}
 
 	return jsonBytes, nil
+}
+
+// BlockJSON returns the block's json structure
+func (block Basic) JSON() BlockJSON {
+	return BlockJSON{
+		Index:      block.Index(),
+		Timestamp:  block.Timestamp(),
+		Parenthash: block.Parenthash(),
+		Blockhash:  block.Blockhash(),
+		Data:       block.Data(),
+	}
+}
+
+// Block returns the basic block from the JSON structure
+func (block BlockJSON) Block() Basic {
+	return Basic{
+		index:      block.Index,
+		timestamp:  block.Timestamp,
+		data:       append([]byte{}, block.Data...),
+		parenthash: append([]byte{}, block.Parenthash...),
+		blockhash:  append([]byte{}, block.Blockhash...),
+	}
+}
+
+func (block Basic) computeHash() []byte {
+	panic("Basic block cannot compute hash")
+	return nil
 }
