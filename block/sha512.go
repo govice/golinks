@@ -31,8 +31,8 @@ func NewSHA512(index int, data []byte, parentHash []byte) *SHA512 {
 	blk := &SHA512{Basic{
 		index:      index,
 		timestamp:  time.Now().Unix(),
-		data:       data,
-		parenthash: parentHash,
+		data:       append([]byte{}, data...),
+		parenthash: append([]byte{}, parentHash...),
 	}}
 	blk.computeHash()
 	return blk
@@ -48,6 +48,6 @@ func (block *SHA512) computeHash() []byte {
 	if _, err := blkhash.Write(blockBytes); err != nil {
 		panic(err)
 	}
-	block.blockhash = blkhash.Sum(nil)
+	block.blockhash = append([]byte{}, blkhash.Sum(nil)...)
 	return block.blockhash
 }

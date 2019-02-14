@@ -27,12 +27,21 @@ type Block interface {
 	computeHash() []byte
 	Serialize() ([]byte, error)
 	Hash() []byte
+	JSON() BlockJSON
 
 	Index() int
 	Timestamp() int64
 	Parenthash() []byte
 	Blockhash() []byte
 	Data() []byte
+}
+
+type BlockJSON struct {
+	Index      int    `json:"index"`
+	Timestamp  int64  `json:"timestamp"`
+	Data       []byte `json:"data"`
+	Parenthash []byte `json:"parentHash"`
+	Blockhash  []byte `json:"blockhash,omitempty"`
 }
 
 //Validate compares two blocks to verify their parent child relationship.

@@ -18,6 +18,7 @@ package blockchain
 
 import (
 	"log"
+	"os"
 	"testing"
 
 	"github.com/govice/golinks/block"
@@ -74,35 +75,36 @@ func TestBlockchain_Equal(t *testing.T) {
 
 }
 
-// func TestBlockchain_InputOutput(t *testing.T) {
-// 	log.Println("Testing I/O")
-// 	//Test saving to file
-// 	blkchain := New(genesisBlock)
-// 	blkchain.AddSHA512([]byte("NewSTring"))
-// 	blkchain.AddSHA512([]byte("NewSTring2"))
-// 	err := blkchain.Save("testfile")
-// 	if err != nil {
-// 		t.Error("failed to save blockchain ", err)
-// 	}
+func TestBlockchain_InputOutput(t *testing.T) {
+	log.Println("Testing I/O")
+	//Test saving to file
+	blkchain := New(genesisBlock)
+	blkchain.AddSHA512([]byte("NewSTring"))
+	blkchain.AddSHA512([]byte("NewSTring2"))
 
-// 	//Test loading from file
-// 	var blkchainB Blockchain
-// 	err = blkchainB.Load("testfile")
-// 	if err != nil {
-// 		t.Error("failed to load blockchain", err)
-// 	}
+	err := blkchain.Save("testfile")
+	if err != nil {
+		t.Error("failed to save blockchain ", err)
+	}
 
-// 	//Test validity of read chain
-// 	if !Equal(blkchain, blkchainB) {
-// 		t.Error("read blockchain does not match saved chain")
-// 	}
+	//Test loading from file
+	blkchainB := Blockchain{}
+	err = blkchainB.Load("testfile")
+	if err != nil {
+		t.Error("failed to load blockchain", err)
+	}
 
-// 	//Cleanup test file
-// 	err = os.Remove("testfile.dat")
-// 	if err != nil {
-// 		t.Error("failed to cleanup IO test file", err)
-// 	}
-// }
+	//Test validity of read chain
+	if !Equal(blkchain, blkchainB) {
+		t.Error("read blockchain does not match saved chain")
+	}
+
+	//Cleanup test file
+	err = os.Remove("testfile.dat")
+	if err != nil {
+		t.Error("failed to cleanup IO test file", err)
+	}
+}
 
 func TestBlockchain_GetGCI(t *testing.T) {
 	log.Println("Testing GetGCI")
