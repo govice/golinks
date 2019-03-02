@@ -106,6 +106,33 @@ func TestBlockchain_InputOutput(t *testing.T) {
 	}
 }
 
+func TestBlockchain_SubChain(t *testing.T) {
+	log.Println("Testing SubChain")
+	b := New(genesisBlock)
+	b.AddSHA512([]byte("NewSTring"))
+	b.AddSHA512([]byte("NewSTring2"))
+	// Subchain of maximum length should return the same chain
+	sub, err := b.SubChain(b.Length())
+	if err != nil {
+		t.Error(err)
+	}
+
+	if err != nil || !Equal(sub, b) {
+		t.Errorf("Subchain %#v not equal to original chain: %#v", sub, b)
+	}
+
+	c := b
+	c.AddSHA512([]byte("NewString3"))
+
+	sub, err = c.SubChain(b.Length())
+	if err != nil {
+		t.Error(err)
+	}
+	if !Equal(sub, b) {
+		t.Errorf("Subchain %#v not equal to original chain: %#v", sub, b)
+	}
+}
+
 func TestBlockchain_GetGCI(t *testing.T) {
 	log.Println("Testing GetGCI")
 	b := New(genesisBlock)
@@ -113,10 +140,22 @@ func TestBlockchain_GetGCI(t *testing.T) {
 	b.AddSHA512([]byte("NewSTring2"))
 	c := b
 	c.AddSHA512([]byte("new"))
-	if b.GetGCI(c) != 3 {
-		t.Errorf("Invalid GCI of %v should be 3", len(b))
+	gci, err := b.GetGCI(c)
+	if err != nil {
+		t.Error(err)
+	}
+	if gci != b.Length() {
+		t.Errorf("Invalid GCI of %v should be 3", gci)
 	}
 
+	gci, err = c.GetGCI(b)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if gci != b.Length() {
+		t.Errorf("Invalid GCI of %v should be 3", gci)
+	}
 }
 
 func TestBlockchain_UpdateChain(t *testing.T) {

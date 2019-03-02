@@ -29,39 +29,59 @@ import (
 )
 
 //Blockchain type implements an array of blocks.
-type Blockchain []block.Block
+// type Blockchain []block.Block
+type Blockchain struct {
+	blocks []block.Block
+}
 
-type BlockchainJSON []block.BlockJSON
+type Blockchainer interface {
+	New() Blockchain
+	Add(b block.Block)
+	Validate() error
+	Length()
+}
+
+type BlockchainJSON struct {
+	Blocks []block.BlockJSON `json:"blocks"`
+}
 
 const genesisSize int = 100 //bytes
 
 //New returns a new blockchain and initializes the chain's genesis block.
 func New(genesisBlock block.Block) Blockchain {
 	var blkchain Blockchain
-	blkchain = append(blkchain, genesisBlock)
+	blkchain.blocks = append(blkchain.blocks, genesisBlock)
 	return blkchain
 }
 
+func (b Blockchain) Length() int {
+	return len(b.blocks)
+}
+
+func (b Blockchain) At(index int) block.Block {
+	return b.blocks[index]
+}
+
 //AddSHA512 adds a new block to the chain given a payload.
-func (blockchain *Blockchain) AddSHA512(data []byte) {
-	blk := block.NewSHA512(len(*blockchain), data, (*blockchain)[len(*blockchain)-1].Blockhash())
-	*blockchain = append(*blockchain, blk)
+func (b *Blockchain) AddSHA512(data []byte) {
+	blk := block.NewSHA512(b.Length(), data, (b.blocks)[b.Length()-1].Blockhash())
+	b.blocks = append(b.blocks, blk)
 }
 
 //Print outputs the blockchain to standard output.
-func (blockchain Blockchain) Print() {
-	for i := 0; i < len(blockchain); i++ {
-		fmt.Println("Block ", i, ": ", blockchain[i])
+func (b Blockchain) Print() {
+	for i := 0; i < len(b.blocks); i++ {
+		fmt.Println("Block ", i, ": ", b.blocks[i])
 	}
 }
 
 //Validate iterates through blocks and calls the block.validate method for the length of the chain.
-func (blockchain Blockchain) Validate() error {
-	if len(blockchain) < 2 {
+func (b Blockchain) Validate() error {
+	if b.Length() < 2 {
 		return errors.New("Validate: invalid genesis block")
 	}
-	for i := 1; i < len(blockchain); i++ {
-		if err := block.Validate(blockchain[i-1], blockchain[i]); err != nil {
+	for i := 1; i < b.Length(); i++ {
+		if err := block.Validate(b.At(i-1), b.At(i)); err != nil {
 			return errors.Wrap(err, "Validate: failed to validate blockchain blocks")
 		}
 	}
@@ -69,45 +89,82 @@ func (blockchain Blockchain) Validate() error {
 }
 
 //GetCurrentHash Returns the most recent hash in a blockchain
-func (blockchain Blockchain) GetCurrentHash() []byte {
-	return blockchain[len(blockchain)].Blockhash()
+func (b Blockchain) GetCurrentHash() []byte {
+	return b.blocks[b.Length()].Blockhash()
 }
 
 //UpdateChain returns the longest valid chain given two blockchains.
 // it should be implied that the longest chain should have the most recent block
-func (blockchain *Blockchain) UpdateChain(new Blockchain) error {
+func (b *Blockchain) UpdateChain(new Blockchain) error {
 	//Chain is longer and needs updating.
-	if blockchain.GetGCI(new) == -1 {
-		return errors.New("UpdateChain: invalid GCI comparison")
+	if _, err := b.GetGCI(new); err != nil {
+		return errors.New("blockchain: blocks do not share a GCI")
 	}
-	if len(new) > len(*blockchain) {
+	if new.Length() > b.Length() {
 		if err := new.Validate(); err != nil {
-			return errors.Wrap(err, "UpdateChain: failed to validate new")
+			return errors.Wrap(err, "blockchain: failed to validate new")
 		}
-		*blockchain = new
+		*b = new
 		return nil
 	}
-	return errors.New("UpdateChain: Failed")
+	return errors.New("blockchain: Failed")
+}
+
+// SubChain returns a new blockchain at index of blockchain
+func (b Blockchain) SubChain(index int) (Blockchain, error) {
+	if index == b.Length() {
+		return b, nil
+	}
+
+	chain := Blockchain{}
+
+	if index > b.Length() {
+		return chain, errors.New("blockchain: Subchain index exceeds chain length")
+	}
+
+	chain.blocks = append(chain.blocks, b.blocks[:index]...)
+	return chain, nil
 }
 
 //GetGCI returns the greatest common index between the current blockchain and the new blockchain
-func (blockchain Blockchain) GetGCI(new Blockchain) int {
-	if len(new) > len(blockchain) {
-		if !Equal(blockchain, new[:len(blockchain)]) {
-			return -1
+func (b Blockchain) GetGCI(other Blockchain) (int, error) {
+	gci := b.Length()
+	var bSubchain Blockchain
+	var otherSubchain Blockchain
+	var err error
+	if other.Length() > b.Length() {
+		otherSubchain, err = other.SubChain(b.Length())
+		if err != nil {
+			return -1, err
 		}
+		bSubchain = b
+	} else if b.Length() > other.Length() {
+		gci = other.Length()
+		bSubchain, err = b.SubChain(other.Length())
+		if err != nil {
+			return -1, err
+		}
+		otherSubchain = other
+	} else {
+		bSubchain = b
+		otherSubchain = other
 	}
-	return len(blockchain)
+
+	if !Equal(bSubchain, otherSubchain) {
+		return -1, errors.New("blockchain: blockchains are not equal")
+	}
+
+	return gci, nil
 }
 
 //Equal tests the equality of two blockchains
 func Equal(chainA, chainB Blockchain) bool {
-	if len(chainA) != len(chainB) {
+	if chainA.Length() != chainB.Length() {
 		return false
 	}
 
-	for i := 0; i < len(chainA); i++ {
-		if !bytes.Equal(chainA[i].Blockhash(), chainB[i].Blockhash()) {
+	for i := 0; i < chainA.Length(); i++ {
+		if !bytes.Equal(chainA.At(i).Blockhash(), chainB.At(i).Blockhash()) {
 			return false
 		}
 	}
@@ -146,10 +203,10 @@ func (blockchain *Blockchain) Load(name string) error {
 	return err
 }
 
-func (blockchain *Blockchain) MarshalJSON() ([]byte, error) {
+func (blockchain Blockchain) MarshalJSON() ([]byte, error) {
 	var blockchainJSON BlockchainJSON
-	for _, blk := range *blockchain {
-		blockchainJSON = append(blockchainJSON, blk.JSON())
+	for _, blk := range blockchain.blocks {
+		blockchainJSON.Blocks = append(blockchainJSON.Blocks, blk.JSON())
 	}
 
 	chainBytes, err := json.Marshal(blockchainJSON)
@@ -166,8 +223,8 @@ func (blockchain *Blockchain) UnmarshalJSON(bytes []byte) error {
 		return err
 	}
 
-	for _, blockJSON := range blockchainJSON {
-		*blockchain = append(*blockchain, blockJSON.Block())
+	for _, blockJSON := range blockchainJSON.Blocks {
+		blockchain.blocks = append(blockchain.blocks, blockJSON.Block())
 	}
 	return nil
 }
