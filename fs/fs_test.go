@@ -38,8 +38,8 @@ func TestHashFile(t *testing.T) {
 	if err := os.Mkdir(TestPath, 0755); err != nil {
 		t.Error(err)
 	}
-	//remove files after testing
 
+	//remove files after testing
 	defer func() {
 		if err := os.RemoveAll(TestPath); err != nil {
 			t.Error(err)
