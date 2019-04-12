@@ -51,3 +51,14 @@ func (block *SHA512) computeHash() []byte {
 	block.blockhash = append([]byte{}, blkhash.Sum(nil)...)
 	return block.blockhash
 }
+
+// NewGenesis returns a new gensis block hashed with SHA512
+func NewSHA512Genesis() *SHA512 {
+	genesis := &SHA512{Basic{
+		index:     0,
+		timestamp: time.Time{}.Unix(),
+		data:      append([]byte{}, []byte("GENSIS BLOCK")...),
+	}}
+	genesis.computeHash()
+	return genesis
+}

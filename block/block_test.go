@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"log"
 	"testing"
+	"time"
 )
 
 func TestEqual(t *testing.T) {
@@ -94,6 +95,22 @@ func TestSerialize(t *testing.T) {
 	if bytes.Equal(goldenBytes, serializedBytes) {
 		fmt.Printf("Golden: %x\n", goldenBytes)
 		fmt.Printf("Serial: %x\n", serializedBytes)
+		t.Fail()
+	}
+}
+
+func TestNewGenesis(t *testing.T) {
+	genesis := NewSHA512Genesis()
+	timeZero := time.Time{}.Unix()
+	if genesis.Timestamp() != timeZero {
+		t.Fail()
+	}
+
+	if genesis.Index() != 0 {
+		t.Fail()
+	}
+
+	if !bytes.Equal(genesis.Data(), []byte("GENSIS BLOCK")) {
 		t.Fail()
 	}
 }
