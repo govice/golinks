@@ -22,4 +22,6 @@ test/
 
 *testing
 
+*/vendor
+
 .vscode/
