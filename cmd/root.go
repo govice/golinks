@@ -28,8 +28,8 @@ import (
 
 var (
 	cfgFile, userLicense string
-
-	rootCmd = &cobra.Command{
+	verbose              bool
+	rootCmd              = &cobra.Command{
 		Use:   "golinks",
 		Short: "golinks is a tool used to retain and reord deatiled integrity of an archive",
 		Run: func(cmd *cobra.Command, args []string) {
@@ -62,6 +62,8 @@ func init() {
 	rootCmd.AddCommand(linkCmd)
 
 	rootCmd.AddCommand(validateCmd)
+
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "enable verbose output")
 }
 
 func initConfig() {
