@@ -70,7 +70,10 @@ func link(path string, cmd *cobra.Command) error {
 	if err := blkmap.Generate(); err != nil {
 		return cli.NewExitError(err, 0)
 	}
-	blkmap.PrintBlockMap()
+
+	if verbose {
+		blkmap.PrintBlockMap()
+	}
 
 	log.Println("saving blockmap to .link file")
 	if err := blkmap.Save(path); err != nil {
