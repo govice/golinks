@@ -88,15 +88,15 @@ func initConfig() {
 	viper.SetConfigName("golinks")
 	viper.AutomaticEnv()
 
-	log.Println("Reading Config file")
+	verb("Reading Config file")
 	if err := viper.ReadInConfig(); err != nil {
-		log.Println("Failed to find config file")
+		verb("Failed to find config file")
 		config, err := DefaultConfig()
 		if err != nil {
 			log.Fatal("Failed to generate default config", err)
 			os.Exit(1)
 		}
-		log.Println("Creating Default Config at " + config.ConfigPath)
+		verb("Creating Default Config at " + config.ConfigPath)
 		if err := config.WriteConfig(); err != nil {
 			log.Fatal(err)
 			os.Exit(1)
@@ -106,7 +106,7 @@ func initConfig() {
 			os.Exit(1)
 		}
 	}
-	log.Println("Using config file:", viper.ConfigFileUsed())
+	verb("Using config file:", viper.ConfigFileUsed())
 }
 
 // Execute executes the root command
@@ -114,6 +114,13 @@ func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
+	}
+}
+
+// verb wraps log and only prints when verbose is enabled
+func verb(msg ...interface{}) {
+	if verbose {
+		log.Println(msg...)
 	}
 }
 

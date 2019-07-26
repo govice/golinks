@@ -76,15 +76,15 @@ func buildTestDir(size string) error {
 
 	case "small":
 		testConfig = test{testDirs, testDirSize, smallFile}
-		log.Print("generating small test")
+		verb("generating small test")
 
 	case "medium":
 		testConfig = test{testDirs, testDirSize, mediumFile}
-		log.Println("generating medium test")
+		verb("generating medium test")
 
 	case "large":
 		testConfig = test{testDirs, testDirSize, largeFile}
-		log.Println("generating large test")
+		verb("generating large test")
 	default:
 		return errors.New("Build test size is not recognized")
 	}
@@ -106,11 +106,11 @@ func buildTestDir(size string) error {
 
 // TODO maybe not random data?
 func generateTestDir(testRoot string, t test) error {
-	log.Printf("Test Archive Size: %v", t.ArchiveSize)
-	log.Println("Test Root: " + testRoot)
+	verb("Test Archive Size: " + strconv.Itoa(t.ArchiveSize))
+	verb("Test Root: " + testRoot)
 	for i := 0; i < t.ArchiveSize; i++ {
 		iStr := strconv.Itoa(i)
-		log.Println("Creating Archive " + iStr)
+		verb("Creating Archive " + iStr)
 		tmpdir, err := ioutil.TempDir(testRoot, "test"+iStr)
 		if err != nil {
 			return err
@@ -150,7 +150,7 @@ func verifyPath(path string) (bool, error) {
 
 func cleanTestDir() error {
 	testPath := viper.Get("testpath").(string)
-	log.Println("removing " + testPath)
+	verb("removing " + testPath)
 	if err := os.RemoveAll(testPath); err != nil {
 		return err
 	}

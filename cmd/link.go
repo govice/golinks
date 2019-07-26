@@ -35,7 +35,6 @@ var linkCmd = &cobra.Command{
 	Short: "Link an archive ",
 	// Long:  "Build out an archive to test on based according to the preferred size",
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Println(args)
 		if len(args) < 1 {
 			fmt.Println("link: missing arguments for command")
 			cmd.Help()
@@ -47,17 +46,16 @@ var linkCmd = &cobra.Command{
 		}
 
 		if zipArchive {
-			fmt.Println("ZIP ARCHIVE")
+			verb("zipping archive: " + archivePath)
 			if err := zipArchiveF(archivePath); err != nil {
 				log.Println(err)
-				// cmd.Help()
 			}
 		}
 	},
 }
 
 func link(path string, cmd *cobra.Command) error {
-	log.Println("verifying link path")
+	verb("verifying link path")
 	if valid, err := verifyPath(path); !valid || (err != nil) {
 		if err != nil {
 			return err
@@ -66,7 +64,7 @@ func link(path string, cmd *cobra.Command) error {
 	}
 
 	blkmap := blockmap.New(path)
-	log.Println("generating link in " + path)
+	verb("generating link in " + path)
 	if err := blkmap.Generate(); err != nil {
 		return cli.NewExitError(err, 0)
 	}
@@ -75,7 +73,7 @@ func link(path string, cmd *cobra.Command) error {
 		blkmap.PrintBlockMap()
 	}
 
-	log.Println("saving blockmap to .link file")
+	verb("saving blockmap to .link file")
 	if err := blkmap.Save(path); err != nil {
 		return err
 	}

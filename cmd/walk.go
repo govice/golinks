@@ -31,7 +31,6 @@ var walkCmd = &cobra.Command{
 	Short: "Walk an archive ",
 	// Long:  "Build out an archive to test on based according to the preferred size",
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Println(args)
 		if err := walk(args[0], cmd); err != nil {
 			log.Println(err)
 			cmd.Help()
