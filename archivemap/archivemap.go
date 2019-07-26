@@ -75,7 +75,6 @@ func (am ArchiveMap) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	for key, value := range jsonMap {
-		fmt.Println("key: " + key + " | value: " + value)
 		bytes, err := base64.StdEncoding.DecodeString(value)
 		if err != nil {
 			return err

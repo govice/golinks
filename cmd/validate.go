@@ -17,6 +17,7 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/govice/golinks/blockmap"
@@ -39,7 +40,7 @@ var validateCmd = &cobra.Command{
 //TODO is this re-creating an existing link file?
 func validate(path string, cmd *cobra.Command) error {
 	//Validate provided path
-	log.Println("verifying link path")
+	verb("verifying link path")
 	if valid, err := verifyPath(path); !valid || (err != nil) {
 		if err != nil {
 			return err
@@ -48,14 +49,14 @@ func validate(path string, cmd *cobra.Command) error {
 	}
 
 	//Load blockmap from existing file
-	log.Println("checking for existing link file")
+	verb("checking for existing link file")
 	fileBlockmap := blockmap.New(path)
 	if err := fileBlockmap.Load(path); err != nil {
 		return err
 	}
 
 	//Validate the existing directory
-	log.Println("validating link file with current archive")
+	verb("validating link file with current archive")
 	temp := blockmap.New(path)
 	if err := temp.Generate(); err != nil {
 		return err
@@ -65,6 +66,7 @@ func validate(path string, cmd *cobra.Command) error {
 	if !blockmap.Equal(fileBlockmap, temp) {
 		return errors.New("invalid link")
 	}
-	log.Println("link is valid")
+
+	fmt.Println("link is valid")
 	return nil
 }

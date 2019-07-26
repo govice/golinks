@@ -34,7 +34,7 @@ var (
 		Short: "handle tasks related to configuration",
 		Run: func(cmd *cobra.Command, args []string) {
 			configPath := viper.Get("configpath").(string)
-			fmt.Println("config path: " + configPath)
+			verb("config path: " + configPath)
 		},
 	}
 
