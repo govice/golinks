@@ -52,6 +52,7 @@ func init() {
 
 	buildTestCmd.AddCommand(cleanTestCmd)
 	buildTestCmd.Flags().StringVarP(&testSize, "size", "s", "", "Test size [small, medium, large] (required)")
+	buildTestCmd.Flags().BoolVarP(&randomize, "randomize", "r", false, "randomize generated test data")
 	if err := buildTestCmd.MarkFlagRequired("size"); err != nil {
 		panic(err)
 	}
