@@ -61,7 +61,10 @@ const (
 	largeFile   int = mediumFile * 1024 //1 MB
 )
 
-var testSize string
+var (
+	testSize  string
+	randomize bool
+)
 
 type test struct {
 	ArchiveSize   int
@@ -69,7 +72,6 @@ type test struct {
 	FileSize      int
 }
 
-//TODO cleanup of testing environment
 func buildTestDir(size string) error {
 	var testConfig test
 	switch size {
@@ -104,32 +106,32 @@ func buildTestDir(size string) error {
 	return nil
 }
 
-// TODO maybe not random data?
 func generateTestDir(testRoot string, t test) error {
 	verb("Test Archive Size: " + strconv.Itoa(t.ArchiveSize))
 	verb("Test Root: " + testRoot)
 	for i := 0; i < t.ArchiveSize; i++ {
 		iStr := strconv.Itoa(i)
-		verb("Creating Archive " + iStr)
-		tmpdir, err := ioutil.TempDir(testRoot, "test"+iStr)
-		if err != nil {
+
+		verb("Creating Test Archive " + iStr)
+		testDir := testRoot + string(os.PathSeparator) + "test" + iStr
+		if err := os.Mkdir(testDir, 0644); err != nil {
 			return err
 		}
+
 		//Write random data to files
-		r := rand.New(rand.NewSource(time.Now().UnixNano()))
+		var source rand.Source
+		if randomize {
+			source = rand.NewSource(time.Now().UnixNano())
+		} else {
+			source = rand.NewSource(1)
+		}
+		r := rand.New(source)
 		for j := 0; j < t.DirectorySize; j++ {
 			jStr := strconv.Itoa(j)
 			buff := make([]byte, t.FileSize)
 			r.Read(buff)
-			tmpfile, err := ioutil.TempFile(tmpdir, "file"+jStr)
-			if err != nil {
-				panic(err)
-			}
-
-			if _, err := tmpfile.Write(buff); err != nil {
-				panic(err)
-			}
-			if err := tmpfile.Close(); err != nil {
+			testFile := testDir + string(os.PathSeparator) + "file" + jStr
+			if err := ioutil.WriteFile(testFile, buff, 0644); err != nil {
 				panic(err)
 			}
 		}

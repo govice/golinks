@@ -17,6 +17,7 @@
 package cmd
 
 import (
+	"encoding/base64"
 	"fmt"
 	"log"
 	"os"
@@ -77,6 +78,9 @@ func link(path string, cmd *cobra.Command) error {
 	if err := blkmap.Save(path); err != nil {
 		return err
 	}
+
+	rootHash := base64.StdEncoding.EncodeToString(blkmap.RootHash)
+	verb("Root hash: " + rootHash)
 	return nil
 }
 
