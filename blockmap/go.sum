@@ -1,0 +1,8 @@
+github.com/govice/golinks/archivemap v0.0.0-20190730011947-94e806ef1fbb h1:m6JfZKjbBhj20NoFnAWxRizNpMqCVcwmWSxbQoTEQGA=
+github.com/govice/golinks/archivemap v0.0.0-20190730011947-94e806ef1fbb/go.mod h1:nGADXrtNMmU2BHXk32JU3h9fP1F2qBK7XgkPnT6pu8Q=
+github.com/govice/golinks/fs v0.0.0-20190730011947-94e806ef1fbb h1:jnPAu/a/YSTYlGgQ1uPfXEHaHrznD9zRLjOQnHiTVCQ=
+github.com/govice/golinks/fs v0.0.0-20190730011947-94e806ef1fbb/go.mod h1:FJE6UAIKQYpHSIB2OmCjWXIQSQjoSUZs0GvsDtT07Nk=
+github.com/govice/golinks/walker v0.0.0-20190730011947-94e806ef1fbb h1:kc3sQww92JzoR54aXnahl1LWIYd4lDsWBm9w+8WhbFE=
+github.com/govice/golinks/walker v0.0.0-20190730011947-94e806ef1fbb/go.mod h1:hYzEJJRhSea+ifTfqzxOFuAUGa5a9b9StZtIr8UWZ84=
+github.com/pkg/errors v0.8.1 h1:iURUrRGxPUNPdy5/HRSm+Yj6okJ6UtLINN0Q9M4+h3I=
+github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=

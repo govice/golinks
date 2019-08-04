@@ -42,6 +42,16 @@ func TestEqual(t *testing.T) {
 	if bytes.Equal(blkA.Blockhash(), blkC.Blockhash()) {
 		t.Error("Unequivilent blocks returning as matching")
 	}
+
+	target := blkB
+
+	if !Equal(blkB, target) {
+		t.Fail()
+	}
+
+	if Equal(blkB, blkC) {
+		t.Fail()
+	}
 }
 
 func TestJSON(t *testing.T) {
@@ -101,7 +111,7 @@ func TestSerialize(t *testing.T) {
 
 func TestNewGenesis(t *testing.T) {
 	genesis := NewSHA512Genesis()
-	timeZero := time.Time{}.Unix()
+	timeZero := time.Time{}.UnixNano()
 	if genesis.Timestamp() != timeZero {
 		t.Fail()
 	}
