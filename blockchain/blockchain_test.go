@@ -20,6 +20,7 @@ import (
 	"log"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/govice/golinks/block"
 )
@@ -179,5 +180,64 @@ func TestBlockchain_UpdateChain(t *testing.T) {
 	if err == nil {
 		t.Error(err)
 	}
+}
 
+func TestBlockchain_FindByHash(t *testing.T) {
+	b := New(genesisBlock)
+	target := b.AddSHA512([]byte("NewSTring"))
+	b.AddSHA512([]byte("NewSTring2"))
+
+	result := b.FindByBlockHash(target.Blockhash())
+	if result == nil {
+		t.Fail()
+	}
+
+	if !block.Equal(target, result) {
+		t.Fail()
+	}
+
+	result = b.FindByBlockHash([]byte("garbage"))
+
+	if result != nil {
+		t.Fail()
+	}
+}
+
+func TestBlockchain_FindByParenthash(t *testing.T) {
+	b := New(genesisBlock)
+	target := b.AddSHA512([]byte("NewSTring"))
+	b.AddSHA512([]byte("NewSTring2"))
+
+	result := b.FindByParentHash(target.Parenthash())
+
+	if !block.Equal(target, result) {
+		t.Fail()
+	}
+
+	result = b.FindByParentHash([]byte("garbage"))
+
+	if result != nil {
+		t.Fail()
+	}
+}
+
+func TestBlockchain_FindByTimestamp(t *testing.T) {
+	b := New(genesisBlock)
+	target := b.AddSHA512([]byte("NewSTring"))
+	time.Sleep(100 * time.Millisecond)
+	b.AddSHA512([]byte("NewSTring2"))
+
+	result := b.FindByTimestamp(target.Timestamp())
+
+	if !block.Equal(target, result) {
+		log.Println("target", target)
+		log.Println("result", result)
+		t.Error("Failed to find target with timestamp:", target.Timestamp(), "resulting timestamp: ", result.Timestamp())
+	}
+
+	result = b.FindByTimestamp(1234)
+
+	if result != nil {
+		t.Fail()
+	}
 }

@@ -58,3 +58,28 @@ func Validate(prev, current Block) error {
 	}
 	return nil
 }
+
+// Equal returns true if block is equal to other
+func Equal(block, other Block) bool {
+	if block.Index() != other.Index() {
+		return false
+	}
+
+	if !bytes.Equal(block.Blockhash(), other.Blockhash()) {
+		return false
+	}
+
+	if !bytes.Equal(block.Parenthash(), other.Parenthash()) {
+		return false
+	}
+
+	if block.Timestamp() != other.Timestamp() {
+		return false
+	}
+
+	if !bytes.Equal(block.Data(), other.Data()) {
+		return false
+	}
+
+	return true
+}

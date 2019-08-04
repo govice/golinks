@@ -30,7 +30,7 @@ type SHA512 struct {
 func NewSHA512(index int, data []byte, parentHash []byte) *SHA512 {
 	blk := &SHA512{Basic{
 		index:      index,
-		timestamp:  time.Now().Unix(),
+		timestamp:  time.Now().UnixNano(),
 		data:       append([]byte{}, data...),
 		parenthash: append([]byte{}, parentHash...),
 	}}
@@ -56,7 +56,7 @@ func (block *SHA512) computeHash() []byte {
 func NewSHA512Genesis() *SHA512 {
 	genesis := &SHA512{Basic{
 		index:      0,
-		timestamp:  time.Time{}.Unix(),
+		timestamp:  time.Time{}.UnixNano(),
 		data:       append([]byte{}, []byte("GENSIS BLOCK")...),
 		parenthash: append([]byte{}, []byte("")...),
 	}}

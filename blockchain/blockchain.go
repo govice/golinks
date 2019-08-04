@@ -63,9 +63,10 @@ func (b Blockchain) At(index int) block.Block {
 }
 
 //AddSHA512 adds a new block to the chain given a payload.
-func (b *Blockchain) AddSHA512(data []byte) {
+func (b *Blockchain) AddSHA512(data []byte) block.Block {
 	blk := block.NewSHA512(b.Length(), data, (b.blocks)[b.Length()-1].Blockhash())
 	b.blocks = append(b.blocks, blk)
+	return blk
 }
 
 //Print outputs the blockchain to standard output.
@@ -225,6 +226,34 @@ func (blockchain *Blockchain) UnmarshalJSON(bytes []byte) error {
 
 	for _, blockJSON := range blockchainJSON.Blocks {
 		blockchain.blocks = append(blockchain.blocks, blockJSON.Block())
+	}
+	return nil
+}
+
+func (b *Blockchain) FindByBlockHash(hash []byte) block.Block {
+	for _, block := range b.blocks {
+		if bytes.Equal(block.Blockhash(), hash) {
+			return block
+		}
+	}
+
+	return nil
+}
+
+func (b *Blockchain) FindByParentHash(hash []byte) block.Block {
+	for _, block := range b.blocks {
+		if bytes.Equal(block.Parenthash(), hash) {
+			return block
+		}
+	}
+	return nil
+}
+
+func (b *Blockchain) FindByTimestamp(timestamp int64) block.Block {
+	for _, block := range b.blocks {
+		if block.Timestamp() == timestamp {
+			return block
+		}
 	}
 	return nil
 }
