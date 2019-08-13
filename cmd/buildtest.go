@@ -91,7 +91,7 @@ func buildTestDir(size string) error {
 		return errors.New("Build test size is not recognized")
 	}
 
-	testPath := viper.Get("testpath").(string)
+	testPath := viper.Get(cTestPath).(string)
 	os.Mkdir(testPath, 0755)
 	if good, err := verifyPath(testPath); !good || err != nil {
 		if err != nil {
@@ -151,7 +151,7 @@ func verifyPath(path string) (bool, error) {
 }
 
 func cleanTestDir() error {
-	testPath := viper.Get("testpath").(string)
+	testPath := viper.Get(cTestPath).(string)
 	verb("removing " + testPath)
 	if err := os.RemoveAll(testPath); err != nil {
 		return err
