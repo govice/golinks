@@ -22,10 +22,12 @@ import (
 	"log"
 	"os"
 
+	"github.com/google/uuid"
 	"github.com/govice/golinks/blockmap"
 	"github.com/pierrre/archivefile/zip"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/urfave/cli"
 )
 
@@ -75,12 +77,16 @@ func link(path string, cmd *cobra.Command) error {
 	}
 
 	verb("saving blockmap to .link file")
-	if err := blkmap.Save(path); err != nil {
-		return err
-	}
-
 	rootHash := base64.StdEncoding.EncodeToString(blkmap.RootHash)
 	verb("Root hash: " + rootHash)
+	tmpLinkPath := viper.Get(cTempPath).(string)
+	uuid, err := uuid.NewRandom()
+	if err != nil {
+		return err
+	}
+	if err := blkmap.SaveNamed(tmpLinkPath, uuid.String()); err != nil {
+		return err
+	}
 	return nil
 }
 

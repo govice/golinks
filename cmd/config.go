@@ -17,9 +17,8 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"log"
 	"os"
 
 	"github.com/mitchellh/go-homedir"
@@ -28,13 +27,61 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	cConfigPath  = "configpath"
+	cTestPath    = "testpath"
+	cTempPath    = "temporary-folder"
+	cStagingPath = "staging-path"
+	cRemote      = "remote"
+	cAuth        = "auth"
+)
+
 var (
-	configCmd = &cobra.Command{
+	setRemoteURL   string
+	setTmpPath     string
+	setTestPath    string
+	setStagingPath string
+	setAuthURL     string
+	configCmd      = &cobra.Command{
 		Use:   "config",
 		Short: "handle tasks related to configuration",
 		Run: func(cmd *cobra.Command, args []string) {
-			configPath := viper.Get("configpath").(string)
+			configPath := viper.Get(cConfigPath).(string)
 			verb("config path: " + configPath)
+
+			write := false
+			if setRemoteURL != "" {
+				viper.Set(cRemote, setRemoteURL)
+				write = true
+			}
+
+			if setTmpPath != "" {
+				viper.Set(cTempPath, setTmpPath)
+				write = true
+			}
+
+			if setTestPath != "" {
+				viper.Set(cTestPath, setTestPath)
+				write = true
+			}
+
+			if setStagingPath != "" {
+				viper.Set(cStagingPath, setStagingPath)
+				write = true
+			}
+
+			if setAuthURL != "" {
+				viper.Set(cAuth, setAuthURL)
+				write = true
+			}
+
+			if write {
+				if err := viper.WriteConfig(); err != nil {
+					log.Fatal(err)
+				}
+			} else {
+				cmd.Help()
+			}
 		},
 	}
 
@@ -54,52 +101,16 @@ var (
 	}
 )
 
-//Config contains the structure used to create a configuration file
-type Config struct {
-	Name       string `json:"name"`
-	TestPath   string `json:"testpath"`
-	ConfigPath string `json:"configpath"`
-}
-
-// DefaultConfig returns the default configuration file structure
-func DefaultConfig() (Config, error) {
-	var config Config
+// SetDefaultConfig returns the default configuration file structure
+func SetDefaultConfig() error {
 	home, err := homedir.Dir()
 	if err != nil {
-		return config, errors.Wrap(err, "Failed to get home directory")
-	}
-	config = Config{
-		ConfigPath: home + string(os.PathSeparator) + ".golinks" + string(os.PathSeparator) + "golinks.json",
-		TestPath:   home + string(os.PathSeparator) + ".golinks" + string(os.PathSeparator) + "test",
-	}
-	return config, nil
-}
-
-// WriteConfig writes a config file to the path defined in Config.ConfigPath
-func (c Config) WriteConfig() error {
-	configJSON, err := json.Marshal(c)
-	if err != nil {
-		return errors.Wrap(err, "Failed to marshal config json")
+		return errors.Wrap(err, "Failed to get home directory")
 	}
 
-	if err := ioutil.WriteFile(c.ConfigPath, configJSON, 0644); err != nil {
-		return errors.Wrap(err, "Failed to write config file")
-	}
+	viper.Set(cConfigPath, home+string(os.PathSeparator)+".golinks"+string(os.PathSeparator)+"golinks.json")
+	viper.Set(cTestPath, home+string(os.PathSeparator)+".golinks"+string(os.PathSeparator)+"test")
+	viper.Set(cTempPath, home+string(os.PathSeparator)+".golinks"+string(os.PathSeparator)+"tmp")
+	viper.Set(cStagingPath, home+string(os.PathSeparator)+".golinks"+string(os.PathSeparator)+"stage")
 	return nil
-}
-
-// ReadConfig TODO see if needed
-func ReadConfig(path string) (Config, error) {
-	var config = Config{}
-	content, err := ioutil.ReadFile(path)
-	if err != nil {
-		return config, errors.Wrap(err, "Failed to read config file")
-	}
-
-	err = json.Unmarshal(content, &config)
-	if err != nil {
-		return config, errors.Wrap(err, "Failed to unmarshal config json")
-	}
-
-	return config, nil
 }

@@ -135,6 +135,15 @@ func (b BlockMap) PrintBlockMap() {
 
 //Save will store a byte file of the blockmap in the default OutputFile
 func (b BlockMap) Save(path string) error {
+	return b.saveHelper(path, "")
+}
+
+//SaveNamed will store a byte file of the blockmap in the named OutputFile
+func (b BlockMap) SaveNamed(path, name string) error {
+	return b.saveHelper(path, name)
+}
+
+func (b BlockMap) saveHelper(path, name string) error {
 	if b.RootHash == nil {
 		return errors.New("BlockMap: can't save nil hashed map")
 	}
@@ -143,7 +152,7 @@ func (b BlockMap) Save(path string) error {
 	if err != nil {
 		return errors.Wrap(err, "BlockMap: failed to encode link json")
 	}
-	linkFilePath := path + string(os.PathSeparator) + OutputName
+	linkFilePath := path + string(os.PathSeparator) + name + OutputName
 	if err := ioutil.WriteFile(linkFilePath, jsonBytes, 0755); err != nil {
 		return errors.Wrap(err, "BlockMap: failed to write to link")
 	}

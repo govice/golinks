@@ -21,6 +21,9 @@ import (
 	"time"
 )
 
+//todo instead of making blocks hash-alrg specific, pass the encoder and receive a new block.
+// typecast ```encoding.BinaryUnmarshaler```
+
 // SHA512 is a block that uses the SHA512 hash
 type SHA512 struct {
 	Basic

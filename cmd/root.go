@@ -43,11 +43,15 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.golinks)")
-	// rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output") // TODO provide verbose output
 
 	rootCmd.AddCommand(buildTestCmd)
 
 	rootCmd.AddCommand(configCmd)
+	configCmd.Flags().StringVarP(&setRemoteURL, "remote", "r", "", "URL for the remote API")
+	configCmd.Flags().StringVarP(&setTmpPath, "temp", "t", "", "Path to the temporary folder for link storage")
+	configCmd.Flags().StringVarP(&setTmpPath, "test", "", "", "Path to the temporary folder for test file generation")
+	configCmd.Flags().StringVarP(&setStagingPath, "stage", "", "", "Path to directory used for staging changes")
+	configCmd.Flags().StringVarP(&setAuthURL, "auth", "", "", "URL used to verify user authentication")
 	configCmd.AddCommand(printConfigCmd)
 
 	buildTestCmd.AddCommand(cleanTestCmd)
@@ -59,12 +63,26 @@ func init() {
 
 	rootCmd.AddCommand(walkCmd)
 
+	rootCmd.AddCommand(stageCmd)
+
+	rootCmd.AddCommand(pushCmd)
+
+	rootCmd.AddCommand(statusCmd)
+
 	linkCmd.Flags().BoolVarP(&zipArchive, "zip", "z", false, "zip archive after linking")
 	rootCmd.AddCommand(linkCmd)
 
 	rootCmd.AddCommand(validateCmd)
 
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "enable verbose output")
+
+	authCmd.Flags().StringVarP(&setAuthEmail, "email", "e", "", "Set authentication email")
+	authCmd.Flags().StringVarP(&setAuthToken, "token", "t", "", "Set API token")
+	authCmd.Flags().BoolVarP(&skipVerification, "skip-validation", "", false, "Skip authentication validation step")
+	rootCmd.AddCommand(authCmd)
+
+	rootCmd.AddCommand(pushCmd)
+
 }
 
 func initConfig() {
@@ -92,20 +110,17 @@ func initConfig() {
 	verb("Reading Config file")
 	if err := viper.ReadInConfig(); err != nil {
 		verb("Failed to find config file")
-		config, err := DefaultConfig()
+		err := SetDefaultConfig()
 		if err != nil {
 			log.Fatal("Failed to generate default config", err)
 			os.Exit(1)
 		}
-		verb("Creating Default Config at " + config.ConfigPath)
-		if err := config.WriteConfig(); err != nil {
+
+		if err := viper.WriteConfig(); err != nil {
 			log.Fatal(err)
 			os.Exit(1)
 		}
-		if err := viper.ReadInConfig(); err != nil {
-			log.Fatal(err)
-			os.Exit(1)
-		}
+		verb("created default config at " + viper.Get(cConfigPath).(string))
 	}
 	verb("Using config file:", viper.ConfigFileUsed())
 }
