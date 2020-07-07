@@ -18,8 +18,8 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
-	"log"
 	"math/rand"
 	"os"
 	"strconv"
@@ -35,8 +35,8 @@ var buildTestCmd = &cobra.Command{
 	Long:  "Build out an archive to test on based according to the preferred size",
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := buildTestDir(cmd.Flag("size").Value.String()); err != nil {
-			log.Println(err)
-			cmd.Help()
+			fmt.Println(err)
+			os.Exit(1)
 		}
 	},
 }
@@ -46,8 +46,8 @@ var cleanTestCmd = &cobra.Command{
 	Short: "Clean test directory",
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := cleanTestDir(); err != nil {
-			log.Println(err)
-			cmd.Help()
+			fmt.Println(err)
+			os.Exit(1)
 		}
 
 	},

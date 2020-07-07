@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/user"
 
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -87,11 +87,12 @@ func init() {
 
 func initConfig() {
 	// read config from config or from home directory
-	home, err := homedir.Dir()
+	user, err := user.Current()
 	if err != nil {
 		panic(err)
 	}
-	golinksHomeFolder := home + string(os.PathSeparator) + ".golinks"
+
+	golinksHomeFolder := user.HomeDir + string(os.PathSeparator) + ".golinks"
 	os.Mkdir(golinksHomeFolder, 0755)
 	if cfgFile != "" {
 		// Use config file from the flag.
@@ -116,10 +117,6 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		if err := viper.WriteConfig(); err != nil {
-			log.Fatal(err)
-			os.Exit(1)
-		}
 		verb("created default config at " + viper.Get(cConfigPath).(string))
 	}
 	verb("Using config file:", viper.ConfigFileUsed())
