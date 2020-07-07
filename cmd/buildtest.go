@@ -92,7 +92,7 @@ func buildTestDir(size string) error {
 	}
 
 	testPath := viper.Get(cTestPath).(string)
-	os.Mkdir(testPath, 0755)
+	os.Mkdir(testPath, 0775)
 	if good, err := verifyPath(testPath); !good || err != nil {
 		if err != nil {
 			return err
@@ -114,7 +114,7 @@ func generateTestDir(testRoot string, t test) error {
 
 		verb("Creating Test Archive " + iStr)
 		testDir := testRoot + string(os.PathSeparator) + "test" + iStr
-		if err := os.Mkdir(testDir, 0644); err != nil {
+		if err := os.Mkdir(testDir, 0775); err != nil {
 			return err
 		}
 
