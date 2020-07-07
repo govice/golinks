@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/user"
 
-	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -103,7 +103,13 @@ var (
 
 // SetDefaultConfig returns the default configuration file structure
 func SetDefaultConfig() error {
-	home, err := homedir.Dir()
+
+	user, err := user.Current()
+	if err != nil {
+		return err
+	}
+
+	home := user.HomeDir
 	if err != nil {
 		return errors.Wrap(err, "Failed to get home directory")
 	}
@@ -112,5 +118,18 @@ func SetDefaultConfig() error {
 	viper.Set(cTestPath, home+string(os.PathSeparator)+".golinks"+string(os.PathSeparator)+"test")
 	viper.Set(cTempPath, home+string(os.PathSeparator)+".golinks"+string(os.PathSeparator)+"tmp")
 	viper.Set(cStagingPath, home+string(os.PathSeparator)+".golinks"+string(os.PathSeparator)+"stage")
+
+	if _, err := os.Stat(home + "/.golinks/golinks.json"); os.IsNotExist(err) {
+		verb("creating golinks.json")
+		if _, err := os.Create(home + "/.golinks/golinks.json"); err != nil {
+			return err
+		}
+	}
+
+	if err := viper.WriteConfig(); err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
+
 	return nil
 }
