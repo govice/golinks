@@ -96,14 +96,14 @@ var (
 					log.Fatal(err)
 				}
 
-				var block block.Basic
-				if err := json.Unmarshal(body, &block); err != nil {
+				block := &block.Block{}
+				if err := json.Unmarshal(body, block); err != nil {
 					log.Fatal(err)
 				}
 
-				fmt.Println("Index: ", block.Index())
-				fmt.Println("Hash: ", base64.StdEncoding.EncodeToString(block.Hash()))
-				fmt.Println("Parent: ", base64.StdEncoding.EncodeToString(block.Parenthash()))
+				fmt.Println("Index: ", block.Index)
+				fmt.Println("Hash: ", base64.StdEncoding.EncodeToString(block.BlockHash))
+				fmt.Println("Parent: ", base64.StdEncoding.EncodeToString(block.ParentHash))
 			}
 		},
 	}

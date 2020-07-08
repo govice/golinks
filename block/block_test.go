@@ -31,7 +31,7 @@ func TestEqual(t *testing.T) {
 	blkA := NewSHA512(0, []byte("data"), nil)
 	blkB := blkA
 	log.Println("Testing Block Equality")
-	if !bytes.Equal(blkA.Hash(), blkB.Hash()) {
+	if !bytes.Equal(blkA.BlockHash, blkB.BlockHash) {
 		t.Fail()
 	}
 
@@ -39,7 +39,7 @@ func TestEqual(t *testing.T) {
 	log.Println("Testing Block Inequality")
 	blkC := NewSHA512(1, []byte("str"), nil)
 
-	if bytes.Equal(blkA.Blockhash(), blkC.Blockhash()) {
+	if bytes.Equal(blkA.BlockHash, blkC.BlockHash) {
 		t.Error("Unequivilent blocks returning as matching")
 	}
 
@@ -57,31 +57,31 @@ func TestEqual(t *testing.T) {
 func TestJSON(t *testing.T) {
 	log.Println("Testing block JSON")
 	blkA := NewSHA512(0, []byte("GENESIS"), nil)
-	blkB := NewSHA512(1, []byte("data"), blkA.Blockhash())
+	blkB := NewSHA512(1, []byte("data"), blkA.BlockHash)
 
 	jsonBytes, err := json.Marshal(blkB)
 	if err != nil {
 		t.Error(err)
 	}
 
-	var blockOut SHA512
-	if err := json.Unmarshal(jsonBytes, &blockOut); err != nil {
+	blockOut := &Block{}
+	if err := json.Unmarshal(jsonBytes, blockOut); err != nil {
 		t.Error(err)
 	}
 
-	if blkB.Index() != blockOut.Index() || blkB.Timestamp() != blockOut.Timestamp() {
+	if blkB.Index != blockOut.Index || blkB.Timestamp != blockOut.Timestamp {
 		t.Fail()
 	}
 
-	if !bytes.Equal(blkB.Parenthash(), blockOut.Parenthash()) {
+	if !bytes.Equal(blkB.ParentHash, blockOut.ParentHash) {
 		t.Fail()
 	}
 
-	if !bytes.Equal(blkB.Blockhash(), blockOut.Blockhash()) {
+	if !bytes.Equal(blkB.BlockHash, blockOut.BlockHash) {
 		t.Fail()
 	}
 
-	if !bytes.Equal(blkB.Data(), blockOut.Data()) {
+	if !bytes.Equal(blkB.Data, blockOut.Data) {
 		t.Fail()
 	}
 }
@@ -90,7 +90,7 @@ func TestJSON(t *testing.T) {
 func TestSerialize(t *testing.T) {
 	log.Println("Testing block serialize")
 	blkA := NewSHA512(0, []byte("GENESIS"), nil)
-	blkB := NewSHA512(1, []byte("data"), blkA.Blockhash())
+	blkB := NewSHA512(1, []byte("data"), blkA.BlockHash)
 
 	goldenBytes, err := json.Marshal(blkB)
 	if err != nil {
@@ -112,15 +112,15 @@ func TestSerialize(t *testing.T) {
 func TestNewGenesis(t *testing.T) {
 	genesis := NewSHA512Genesis()
 	timeZero := time.Time{}.UnixNano()
-	if genesis.Timestamp() != timeZero {
+	if genesis.Timestamp != timeZero {
 		t.Fail()
 	}
 
-	if genesis.Index() != 0 {
+	if genesis.Index != 0 {
 		t.Fail()
 	}
 
-	if !bytes.Equal(genesis.Data(), []byte("GENSIS BLOCK")) {
+	if !bytes.Equal(genesis.Data, []byte("GENSIS BLOCK")) {
 		t.Fail()
 	}
 }
