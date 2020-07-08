@@ -25,19 +25,25 @@ import (
 	"github.com/govice/golinks/block"
 )
 
-var genesisBlock = block.NewSHA512(0, []byte("GENESIS"), nil)
+var genesisBlock = block.NewSHA512Genesis()
 
 //TestGetValidChain creates two different blockchains of different sizes and attempts to validate the chain.
 func TestBlockchain_Validate(t *testing.T) {
 	log.Println("Testing GetValidChain")
-	blkchain := New(genesisBlock)
-	blkchain.AddSHA512([]byte("NewSTring"))
-	blkchain.AddSHA512([]byte("NewSTring"))
-	err := blkchain.Validate()
+	blkchain, err := New(genesisBlock)
 	if err != nil {
+		t.Error(err)
+	}
+	blkchain.AddSHA512([]byte("NewSTring"))
+	blkchain.AddSHA512([]byte("NewSTring"))
+
+	if err := blkchain.Validate(); err != nil {
 		t.Error("Failed to Valiate Blockchain")
 	}
-	blkchain2 := New(genesisBlock)
+	blkchain2, err := New(genesisBlock)
+	if err != nil {
+		t.Error(err)
+	}
 	blkchain2.AddSHA512([]byte("chain2str"))
 	blkchain2.AddSHA512([]byte("chain2str"))
 	blkchain2.AddSHA512([]byte("data"))
@@ -54,8 +60,12 @@ func TestBlockchain_Validate(t *testing.T) {
 func TestBlockchain_Equal(t *testing.T) {
 	log.Println("Testing Equal")
 	//construct two chains with genesis blocks
-	chainA := New(genesisBlock)
-	var chainB Blockchain
+	chainA, err := New(genesisBlock)
+	if err != nil {
+		t.Error(err)
+	}
+
+	chainB := Blockchain{}
 
 	//Test with equal blocks
 	chainA.AddSHA512([]byte("NewSTring"))
@@ -79,12 +89,14 @@ func TestBlockchain_Equal(t *testing.T) {
 func TestBlockchain_InputOutput(t *testing.T) {
 	log.Println("Testing I/O")
 	//Test saving to file
-	blkchain := New(genesisBlock)
+	blkchain, err := New(genesisBlock)
+	if err != nil {
+		t.Error(err)
+	}
 	blkchain.AddSHA512([]byte("NewSTring"))
 	blkchain.AddSHA512([]byte("NewSTring2"))
 
-	err := blkchain.Save("testfile")
-	if err != nil {
+	if err := blkchain.Save("testfile"); err != nil {
 		t.Error("failed to save blockchain ", err)
 	}
 
@@ -109,7 +121,10 @@ func TestBlockchain_InputOutput(t *testing.T) {
 
 func TestBlockchain_SubChain(t *testing.T) {
 	log.Println("Testing SubChain")
-	b := New(genesisBlock)
+	b, err := New(genesisBlock)
+	if err != nil {
+		t.Error(err)
+	}
 	b.AddSHA512([]byte("NewSTring"))
 	b.AddSHA512([]byte("NewSTring2"))
 	// Subchain of maximum length should return the same chain
@@ -136,7 +151,10 @@ func TestBlockchain_SubChain(t *testing.T) {
 
 func TestBlockchain_GetGCI(t *testing.T) {
 	log.Println("Testing GetGCI")
-	b := New(genesisBlock)
+	b, err := New(genesisBlock)
+	if err != nil {
+		t.Error(err)
+	}
 	b.AddSHA512([]byte("NewSTring"))
 	b.AddSHA512([]byte("NewSTring2"))
 	c := b
@@ -161,20 +179,27 @@ func TestBlockchain_GetGCI(t *testing.T) {
 
 func TestBlockchain_UpdateChain(t *testing.T) {
 	log.Println("Testing UpdateChain")
-	b := New(genesisBlock)
+	b, err := New(genesisBlock)
+	if err != nil {
+		t.Error(err)
+	}
 	b.AddSHA512([]byte("NewSTring"))
 	b.AddSHA512([]byte("NewSTring2"))
 	c := b
 	c.AddSHA512([]byte("new"))
-	err := b.UpdateChain(c)
-	if err != nil {
+
+	if err := b.UpdateChain(c); err != nil {
 		t.Error(err)
 	}
+
 	if !Equal(c, b) {
 		t.Error("Failed Update Chain")
 	}
 
-	d := New(genesisBlock)
+	d, err := New(genesisBlock)
+	if err != nil {
+		t.Error(err)
+	}
 	d.AddSHA512([]byte("invalid"))
 	err = c.UpdateChain(d)
 	if err == nil {
@@ -183,7 +208,10 @@ func TestBlockchain_UpdateChain(t *testing.T) {
 }
 
 func TestBlockchain_FindByHash(t *testing.T) {
-	b := New(genesisBlock)
+	b, err := New(genesisBlock)
+	if err != nil {
+		t.Error(err)
+	}
 	target := b.AddSHA512([]byte("NewSTring"))
 	b.AddSHA512([]byte("NewSTring2"))
 
@@ -201,10 +229,19 @@ func TestBlockchain_FindByHash(t *testing.T) {
 	if result != nil {
 		t.Fail()
 	}
+
+	// #77 block: missing genesis block hash
+	result = b.FindByBlockHash(genesisBlock.Hash())
+	if !block.Equal(genesisBlock, result) {
+		t.Fail()
+	}
 }
 
 func TestBlockchain_FindByParenthash(t *testing.T) {
-	b := New(genesisBlock)
+	b, err := New(genesisBlock)
+	if err != nil {
+		t.Error(err)
+	}
 	target := b.AddSHA512([]byte("NewSTring"))
 	b.AddSHA512([]byte("NewSTring2"))
 
@@ -222,7 +259,10 @@ func TestBlockchain_FindByParenthash(t *testing.T) {
 }
 
 func TestBlockchain_FindByTimestamp(t *testing.T) {
-	b := New(genesisBlock)
+	b, err := New(genesisBlock)
+	if err != nil {
+		t.Error(err)
+	}
 	target := b.AddSHA512([]byte("NewSTring"))
 	time.Sleep(100 * time.Millisecond)
 	b.AddSHA512([]byte("NewSTring2"))
