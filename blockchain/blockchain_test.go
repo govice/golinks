@@ -65,13 +65,11 @@ func TestBlockchain_Equal(t *testing.T) {
 		t.Error(err)
 	}
 
-	chainB := Blockchain{}
-
 	//Test with equal blocks
 	chainA.AddSHA512([]byte("NewSTring"))
 	chainA.AddSHA512([]byte("NewSTring"))
 
-	chainB = chainA
+	chainB := Copy(chainA)
 
 	//Test equality with two equal blockchains
 	if !Equal(chainA, chainB) {
@@ -81,7 +79,11 @@ func TestBlockchain_Equal(t *testing.T) {
 	//Test equality with additional block
 	chainB.AddSHA512([]byte("data"))
 	if Equal(chainA, chainB) {
+		chainA.Print()
+
+		chainB.Print()
 		t.Error("unequal chains are testing as equal")
+
 	}
 
 }
@@ -101,7 +103,7 @@ func TestBlockchain_InputOutput(t *testing.T) {
 	}
 
 	//Test loading from file
-	blkchainB := Blockchain{}
+	blkchainB := &Blockchain{}
 	err = blkchainB.Load("testfile")
 	if err != nil {
 		t.Error("failed to load blockchain", err)
@@ -174,36 +176,6 @@ func TestBlockchain_GetGCI(t *testing.T) {
 
 	if gci != b.Length() {
 		t.Errorf("Invalid GCI of %v should be 3", gci)
-	}
-}
-
-func TestBlockchain_UpdateChain(t *testing.T) {
-	log.Println("Testing UpdateChain")
-	b, err := New(genesisBlock)
-	if err != nil {
-		t.Error(err)
-	}
-	b.AddSHA512([]byte("NewSTring"))
-	b.AddSHA512([]byte("NewSTring2"))
-	c := b
-	c.AddSHA512([]byte("new"))
-
-	if err := b.UpdateChain(c); err != nil {
-		t.Error(err)
-	}
-
-	if !Equal(c, b) {
-		t.Error("Failed Update Chain")
-	}
-
-	d, err := New(genesisBlock)
-	if err != nil {
-		t.Error(err)
-	}
-	d.AddSHA512([]byte("invalid"))
-	err = c.UpdateChain(d)
-	if err == nil {
-		t.Error(err)
 	}
 }
 

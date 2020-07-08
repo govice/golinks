@@ -50,8 +50,8 @@ const genesisSize int = 100 //bytes
 var ErrInvalidGenesisBlock = errors.New("blockchain: invalid genesis block")
 
 //New returns a new blockchain and initializes the chain's genesis block.
-func New(genesisBlock block.Block) (Blockchain, error) {
-	blkchain := Blockchain{}
+func New(genesisBlock block.Block) (*Blockchain, error) {
+	blkchain := &Blockchain{}
 	if len(genesisBlock.Parenthash()) != 0 {
 		return blkchain, ErrInvalidGenesisBlock
 	}
@@ -60,11 +60,11 @@ func New(genesisBlock block.Block) (Blockchain, error) {
 	return blkchain, nil
 }
 
-func (b Blockchain) Length() int {
+func (b *Blockchain) Length() int {
 	return len(b.blocks)
 }
 
-func (b Blockchain) At(index int) block.Block {
+func (b *Blockchain) At(index int) block.Block {
 	return b.blocks[index]
 }
 
@@ -76,14 +76,14 @@ func (b *Blockchain) AddSHA512(data []byte) block.Block {
 }
 
 //Print outputs the blockchain to standard output.
-func (b Blockchain) Print() {
+func (b *Blockchain) Print() {
 	for i := 0; i < len(b.blocks); i++ {
 		fmt.Println("Block ", i, ": ", b.blocks[i])
 	}
 }
 
 //Validate iterates through blocks and calls the block.validate method for the length of the chain.
-func (b Blockchain) Validate() error {
+func (b *Blockchain) Validate() error {
 	if b.Length() < 2 {
 		return errors.New("Validate: invalid genesis block")
 	}
@@ -96,34 +96,17 @@ func (b Blockchain) Validate() error {
 }
 
 //GetCurrentHash Returns the most recent hash in a blockchain
-func (b Blockchain) GetCurrentHash() []byte {
+func (b *Blockchain) GetCurrentHash() []byte {
 	return b.blocks[b.Length()].Blockhash()
 }
 
-//UpdateChain returns the longest valid chain given two blockchains.
-// it should be implied that the longest chain should have the most recent block
-func (b *Blockchain) UpdateChain(new Blockchain) error {
-	//Chain is longer and needs updating.
-	if _, err := b.GetGCI(new); err != nil {
-		return errors.New("blockchain: blocks do not share a GCI")
-	}
-	if new.Length() > b.Length() {
-		if err := new.Validate(); err != nil {
-			return errors.Wrap(err, "blockchain: failed to validate new")
-		}
-		*b = new
-		return nil
-	}
-	return errors.New("blockchain: Failed")
-}
-
 // SubChain returns a new blockchain at index of blockchain
-func (b Blockchain) SubChain(index int) (Blockchain, error) {
+func (b *Blockchain) SubChain(index int) (*Blockchain, error) {
 	if index == b.Length() {
 		return b, nil
 	}
 
-	chain := Blockchain{}
+	chain := &Blockchain{}
 
 	if index > b.Length() {
 		return chain, errors.New("blockchain: Subchain index exceeds chain length")
@@ -134,10 +117,10 @@ func (b Blockchain) SubChain(index int) (Blockchain, error) {
 }
 
 //GetGCI returns the greatest common index between the current blockchain and the new blockchain
-func (b Blockchain) GetGCI(other Blockchain) (int, error) {
+func (b *Blockchain) GetGCI(other *Blockchain) (int, error) {
 	gci := b.Length()
-	var bSubchain Blockchain
-	var otherSubchain Blockchain
+	bSubchain := &Blockchain{}
+	otherSubchain := &Blockchain{}
 	var err error
 	if other.Length() > b.Length() {
 		otherSubchain, err = other.SubChain(b.Length())
@@ -165,7 +148,7 @@ func (b Blockchain) GetGCI(other Blockchain) (int, error) {
 }
 
 //Equal tests the equality of two blockchains
-func Equal(chainA, chainB Blockchain) bool {
+func Equal(chainA, chainB *Blockchain) bool {
 	if chainA.Length() != chainB.Length() {
 		return false
 	}
@@ -262,4 +245,12 @@ func (b *Blockchain) FindByTimestamp(timestamp int64) block.Block {
 		}
 	}
 	return nil
+}
+
+func Copy(other *Blockchain) *Blockchain {
+	newChain := &Blockchain{
+		blocks: make([]block.Block, len(other.blocks)),
+	}
+	copy(newChain.blocks, other.blocks)
+	return newChain
 }
