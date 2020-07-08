@@ -47,11 +47,17 @@ type BlockchainJSON struct {
 
 const genesisSize int = 100 //bytes
 
+var ErrInvalidGenesisBlock = errors.New("blockchain: invalid genesis block")
+
 //New returns a new blockchain and initializes the chain's genesis block.
-func New(genesisBlock block.Block) Blockchain {
-	var blkchain Blockchain
+func New(genesisBlock block.Block) (Blockchain, error) {
+	blkchain := Blockchain{}
+	if len(genesisBlock.Parenthash()) != 0 {
+		return blkchain, ErrInvalidGenesisBlock
+	}
+
 	blkchain.blocks = append(blkchain.blocks, genesisBlock)
-	return blkchain
+	return blkchain, nil
 }
 
 func (b Blockchain) Length() int {
