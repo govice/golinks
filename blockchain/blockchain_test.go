@@ -29,7 +29,6 @@ var genesisBlock = block.NewSHA512Genesis()
 
 //TestGetValidChain creates two different blockchains of different sizes and attempts to validate the chain.
 func TestBlockchain_Validate(t *testing.T) {
-	log.Println("Testing GetValidChain")
 	blkchain, err := New(genesisBlock)
 	if err != nil {
 		t.Error(err)
@@ -38,7 +37,8 @@ func TestBlockchain_Validate(t *testing.T) {
 	blkchain.AddSHA512([]byte("NewSTring"))
 
 	if err := blkchain.Validate(); err != nil {
-		t.Error("Failed to Valiate Blockchain")
+		blkchain.Print()
+		t.Error(err)
 	}
 	blkchain2, err := New(genesisBlock)
 	if err != nil {
@@ -187,7 +187,7 @@ func TestBlockchain_FindByHash(t *testing.T) {
 	target := b.AddSHA512([]byte("NewSTring"))
 	b.AddSHA512([]byte("NewSTring2"))
 
-	result := b.FindByBlockHash(target.Blockhash())
+	result := b.FindByBlockHash(target.BlockHash)
 	if result == nil {
 		t.Fail()
 	}
@@ -203,7 +203,7 @@ func TestBlockchain_FindByHash(t *testing.T) {
 	}
 
 	// #77 block: missing genesis block hash
-	result = b.FindByBlockHash(genesisBlock.Hash())
+	result = b.FindByBlockHash(genesisBlock.BlockHash)
 	if !block.Equal(genesisBlock, result) {
 		t.Fail()
 	}
@@ -217,7 +217,7 @@ func TestBlockchain_FindByParenthash(t *testing.T) {
 	target := b.AddSHA512([]byte("NewSTring"))
 	b.AddSHA512([]byte("NewSTring2"))
 
-	result := b.FindByParentHash(target.Parenthash())
+	result := b.FindByParentHash(target.ParentHash)
 
 	if !block.Equal(target, result) {
 		t.Fail()
@@ -239,12 +239,12 @@ func TestBlockchain_FindByTimestamp(t *testing.T) {
 	time.Sleep(100 * time.Millisecond)
 	b.AddSHA512([]byte("NewSTring2"))
 
-	result := b.FindByTimestamp(target.Timestamp())
+	result := b.FindByTimestamp(target.Timestamp)
 
 	if !block.Equal(target, result) {
 		log.Println("target", target)
 		log.Println("result", result)
-		t.Error("Failed to find target with timestamp:", target.Timestamp(), "resulting timestamp: ", result.Timestamp())
+		t.Error("Failed to find target with timestamp:", target.Timestamp, "resulting timestamp: ", result.Timestamp)
 	}
 
 	result = b.FindByTimestamp(1234)

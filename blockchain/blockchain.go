@@ -31,7 +31,7 @@ import (
 //Blockchain type implements an array of blocks.
 // type Blockchain []block.Block
 type Blockchain struct {
-	blocks []block.Block
+	Blocks []block.Block `json:"blocks"`
 }
 
 type Blockchainer interface {
@@ -41,44 +41,40 @@ type Blockchainer interface {
 	Length()
 }
 
-type BlockchainJSON struct {
-	Blocks []block.BlockJSON `json:"blocks"`
-}
-
 const genesisSize int = 100 //bytes
 
 var ErrInvalidGenesisBlock = errors.New("blockchain: invalid genesis block")
 
 //New returns a new blockchain and initializes the chain's genesis block.
-func New(genesisBlock block.Block) (*Blockchain, error) {
+func New(genesisBlock *block.Block) (*Blockchain, error) {
 	blkchain := &Blockchain{}
-	if len(genesisBlock.Parenthash()) != 0 {
+	if len(genesisBlock.ParentHash) != 0 {
 		return blkchain, ErrInvalidGenesisBlock
 	}
 
-	blkchain.blocks = append(blkchain.blocks, genesisBlock)
+	blkchain.Blocks = append(blkchain.Blocks, *genesisBlock)
 	return blkchain, nil
 }
 
 func (b *Blockchain) Length() int {
-	return len(b.blocks)
+	return len(b.Blocks)
 }
 
-func (b *Blockchain) At(index int) block.Block {
-	return b.blocks[index]
+func (b *Blockchain) At(index int) *block.Block {
+	return &b.Blocks[index]
 }
 
 //AddSHA512 adds a new block to the chain given a payload.
-func (b *Blockchain) AddSHA512(data []byte) block.Block {
-	blk := block.NewSHA512(b.Length(), data, (b.blocks)[b.Length()-1].Blockhash())
-	b.blocks = append(b.blocks, blk)
+func (b *Blockchain) AddSHA512(data []byte) *block.Block {
+	blk := block.NewSHA512(b.Length(), data, b.Blocks[b.Length()-1].BlockHash)
+	b.Blocks = append(b.Blocks, *blk)
 	return blk
 }
 
 //Print outputs the blockchain to standard output.
 func (b *Blockchain) Print() {
-	for i := 0; i < len(b.blocks); i++ {
-		fmt.Println("Block ", i, ": ", b.blocks[i])
+	for i := 0; i < len(b.Blocks); i++ {
+		fmt.Println("Block ", i, ": ", b.Blocks[i])
 	}
 }
 
@@ -97,7 +93,7 @@ func (b *Blockchain) Validate() error {
 
 //GetCurrentHash Returns the most recent hash in a blockchain
 func (b *Blockchain) GetCurrentHash() []byte {
-	return b.blocks[b.Length()].Blockhash()
+	return b.Blocks[b.Length()].BlockHash
 }
 
 // SubChain returns a new blockchain at index of blockchain
@@ -112,7 +108,7 @@ func (b *Blockchain) SubChain(index int) (*Blockchain, error) {
 		return chain, errors.New("blockchain: Subchain index exceeds chain length")
 	}
 
-	chain.blocks = append(chain.blocks, b.blocks[:index]...)
+	chain.Blocks = append(chain.Blocks, b.Blocks[:index]...)
 	return chain, nil
 }
 
@@ -154,7 +150,7 @@ func Equal(chainA, chainB *Blockchain) bool {
 	}
 
 	for i := 0; i < chainA.Length(); i++ {
-		if !bytes.Equal(chainA.At(i).Blockhash(), chainB.At(i).Blockhash()) {
+		if !bytes.Equal(chainA.At(i).BlockHash, chainB.At(i).BlockHash) {
 			return false
 		}
 	}
@@ -193,55 +189,29 @@ func (blockchain *Blockchain) Load(name string) error {
 	return err
 }
 
-func (blockchain Blockchain) MarshalJSON() ([]byte, error) {
-	var blockchainJSON BlockchainJSON
-	for _, blk := range blockchain.blocks {
-		blockchainJSON.Blocks = append(blockchainJSON.Blocks, blk.JSON())
-	}
-
-	chainBytes, err := json.Marshal(blockchainJSON)
-	if err != nil {
-		return nil, err
-	}
-
-	return chainBytes, nil
-}
-
-func (blockchain *Blockchain) UnmarshalJSON(bytes []byte) error {
-	blockchainJSON := BlockchainJSON{}
-	if err := json.Unmarshal(bytes, &blockchainJSON); err != nil {
-		return err
-	}
-
-	for _, blockJSON := range blockchainJSON.Blocks {
-		blockchain.blocks = append(blockchain.blocks, blockJSON.Block())
-	}
-	return nil
-}
-
-func (b *Blockchain) FindByBlockHash(hash []byte) block.Block {
-	for _, block := range b.blocks {
-		if bytes.Equal(block.Blockhash(), hash) {
-			return block
+func (b *Blockchain) FindByBlockHash(hash []byte) *block.Block {
+	for _, block := range b.Blocks {
+		if bytes.Equal(block.BlockHash, hash) {
+			return &block
 		}
 	}
 
 	return nil
 }
 
-func (b *Blockchain) FindByParentHash(hash []byte) block.Block {
-	for _, block := range b.blocks {
-		if bytes.Equal(block.Parenthash(), hash) {
-			return block
+func (b *Blockchain) FindByParentHash(hash []byte) *block.Block {
+	for _, block := range b.Blocks {
+		if bytes.Equal(block.ParentHash, hash) {
+			return &block
 		}
 	}
 	return nil
 }
 
-func (b *Blockchain) FindByTimestamp(timestamp int64) block.Block {
-	for _, block := range b.blocks {
-		if block.Timestamp() == timestamp {
-			return block
+func (b *Blockchain) FindByTimestamp(timestamp int64) *block.Block {
+	for _, block := range b.Blocks {
+		if block.Timestamp == timestamp {
+			return &block
 		}
 	}
 	return nil
@@ -249,8 +219,8 @@ func (b *Blockchain) FindByTimestamp(timestamp int64) block.Block {
 
 func Copy(other *Blockchain) *Blockchain {
 	newChain := &Blockchain{
-		blocks: make([]block.Block, len(other.blocks)),
+		Blocks: make([]block.Block, len(other.Blocks)),
 	}
-	copy(newChain.blocks, other.blocks)
+	copy(newChain.Blocks, other.Blocks)
 	return newChain
 }
