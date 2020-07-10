@@ -224,3 +224,25 @@ func Copy(other *Blockchain) *Blockchain {
 	copy(newChain.Blocks, other.Blocks)
 	return newChain
 }
+
+var ErrNoCommonGCI = errors.New("blocks do not share a GCI")
+var ErrShorterChain = errors.New("new chain is shorter than original")
+
+// UpdateChain compares original and new chain and returns a copy of new
+// iff orginal and new share a GCI and new is longer than original.
+func UpdateChain(original, new *Blockchain) (*Blockchain, error) {
+	//Chain is longer and needs updating.
+	if _, err := original.GetGCI(new); err != nil {
+		return nil, err
+	}
+	if new.Length() < original.Length() {
+		if err := new.Validate(); err != nil {
+			return nil, err
+		}
+
+		return nil, ErrShorterChain
+	}
+
+	chainCopy := *new
+	return &chainCopy, nil
+}
