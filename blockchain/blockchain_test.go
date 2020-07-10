@@ -253,3 +253,42 @@ func TestBlockchain_FindByTimestamp(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestBlockchain_UpdateChain(t *testing.T) {
+	log.Println("Testing UpdateChain")
+	b, err := New(genesisBlock)
+	if err != nil {
+		t.Error(err)
+	}
+	b.AddSHA512([]byte("NewSTring"))
+	b.AddSHA512([]byte("NewSTring2"))
+	c := b
+	c.AddSHA512([]byte("new"))
+
+	cExpectedLength := c.Length()
+	updatedChain, err := UpdateChain(b, c)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !Equal(updatedChain, c) {
+		t.Error("faild to return equal chains")
+	}
+
+	updatedChain.AddSHA512([]byte("asdf"))
+
+	if c.Length() != cExpectedLength {
+		t.Error("update chain did not return a copy")
+	}
+
+	d, err := New(genesisBlock)
+	if err != nil {
+		t.Error(err)
+	}
+	d.AddSHA512([]byte("invalid"))
+
+	updatedChain, err = UpdateChain(c, d)
+	if err == nil {
+		t.Error(err)
+	}
+}
