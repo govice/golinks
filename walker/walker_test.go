@@ -35,7 +35,6 @@ const (
 
 var TestPath, _ = filepath.Abs(filepath.Dir(os.Args[0]) + "/testHome/") //Testing Root
 
-//TODO finish test
 func TestWalker_Walker(t *testing.T) {
 	log.Println("Testing Walker")
 
@@ -87,4 +86,16 @@ func TestWalker_Walker(t *testing.T) {
 		//w.PrintArchive()
 	})
 
+	t.Run("Walk non-permissive", func(t *testing.T) {
+		log.Println("testing walker non-permissive")
+
+		if err := os.Mkdir(filepath.Join(TestPath, "nonpermissive"), 0000); err != nil {
+			t.Error(err)
+		}
+
+		w := New(TestPath)
+		if err := w.Walk(); err != nil {
+			t.Error("expected skip for non-permissive directory")
+		}
+	})
 }

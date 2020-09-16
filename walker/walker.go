@@ -62,13 +62,16 @@ func (w Walker) PrintArchive() {
 	}
 }
 
-//Walk handles walking of a walkers root filesystem
+//Walk handles walking of a walkers root filesystem. Inaccessable directories are skipped.
 func (w *Walker) Walk() error {
 	if w.root == "" {
 		return errors.New("Walk: Archive Empty")
 	}
 	e := filepath.Walk(w.root, func(path string, f os.FileInfo, err error) error {
-		files, _ := ioutil.ReadDir(path)
+		files, err := ioutil.ReadDir(path)
+		if err != nil {
+			return filepath.SkipDir
+		}
 		for _, r := range files {
 			if !r.IsDir() {
 				f := path + string(os.PathSeparator) + r.Name()
