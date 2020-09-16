@@ -6,8 +6,12 @@ jobs:
   build:
     docker:
       # specify the version
-      - image: golang:1.12
+      - image: harbor.govice.org/cicd/golang:latest
         user: govice
+        auth:
+          username: $HARBOR_USER
+          password: $HARBOR_PASSWORD
+
       
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
