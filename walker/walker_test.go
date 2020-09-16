@@ -89,13 +89,42 @@ func TestWalker_Walker(t *testing.T) {
 	t.Run("Walk non-permissive", func(t *testing.T) {
 		log.Println("testing walker non-permissive")
 
-		if err := os.Mkdir(filepath.Join(TestPath, "nonpermissive"), 0000); err != nil {
+		nonperm := filepath.Join(TestPath, "nonpermissive")
+		if err := os.Mkdir(nonperm, 0755); err != nil {
 			t.Error(err)
 		}
 
-		w := New(TestPath)
+		//Write random data to files
+		for j := 0; j < SmallDir; j++ {
+			buff := make([]byte, SmallFile)
+			r.Read(buff)
+			tmpfile, err := ioutil.TempFile(nonperm, "testFile")
+			if err != nil {
+				t.Error(err)
+			}
+
+			if _, err := tmpfile.Write(buff); err != nil {
+				t.Error(err)
+			}
+			if err := tmpfile.Close(); err != nil {
+				t.Error(err)
+			}
+		}
+
+		// make directory nonpermissive
+		if err := os.Chmod(nonperm, 0000); err != nil {
+			t.Error(err)
+		}
+
+		w := New(nonperm)
 		if err := w.Walk(); err != nil {
+			os.Chmod(nonperm, 0755)
 			t.Error("expected skip for non-permissive directory")
+		}
+		os.Chmod(nonperm, 0755)
+
+		if len(w.archive) != 0 {
+			t.Error("archive length", len(w.archive), "does not match expected:", 0)
 		}
 	})
 }

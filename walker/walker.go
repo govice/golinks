@@ -19,9 +19,9 @@ package walker
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 //Walker contains the structure for a file walker
@@ -68,15 +68,19 @@ func (w *Walker) Walk() error {
 		return errors.New("Walk: Archive Empty")
 	}
 	e := filepath.Walk(w.root, func(path string, f os.FileInfo, err error) error {
-		files, err := ioutil.ReadDir(path)
 		if err != nil {
 			return filepath.SkipDir
 		}
-		for _, r := range files {
-			if !r.IsDir() {
-				f := path + string(os.PathSeparator) + r.Name()
-				w.archive = append(w.archive, f)
+
+		if strings.Contains(path, "Docker.raw") {
+			return nil
+		}
+		if !f.IsDir() && f.Mode().IsRegular() {
+			f, err := os.Open(path)
+			if !os.IsPermission(err) {
+				w.archive = append(w.archive, path)
 			}
+			f.Close()
 		}
 		return err
 	})
