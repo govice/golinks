@@ -94,8 +94,8 @@ func TestWalker_Walker(t *testing.T) {
 		}
 
 		w := New(TestPath)
-		if err := w.Walk(); err == nil {
-			t.Error("expected failure for non-permissive directory")
+		if err := w.Walk(); err != nil {
+			t.Error("expected skip for non-permissive directory")
 		}
 	})
 }
