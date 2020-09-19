@@ -44,9 +44,10 @@ const OutputName string = ".link"
 
 //BlockMap is a ad-hoc Merkle tree-map
 type BlockMap struct {
-	Archive  archivemap.ArchiveMap `json:"archive"`
-	RootHash []byte                `json:"rootHash"`
-	Root     string                `json:"root"`
+	Archive     archivemap.ArchiveMap `json:"archive"`
+	RootHash    []byte                `json:"rootHash"`
+	Root        string                `json:"root"`
+	IgnorePaths []string              `json:"ignorePaths"`
 }
 
 //New returns a new BlockMap initialized at the provided root
@@ -65,8 +66,20 @@ func (b *BlockMap) Generate() error {
 		return errors.Wrap(err, "BlockMap: failed to walk "+w.Root())
 	}
 
+	ignoredPath := func(ignoredPaths []string, value string) bool {
+		for _, ip := range ignoredPaths {
+			if strings.HasPrefix(value, ip) {
+				return true
+			}
+		}
+		return false
+	}
+
 	//Iterate through all walked files
 	for _, filePath := range w.Archive() {
+		if ignoredPath(b.IgnorePaths, filePath) {
+			continue
+		}
 		//Extract the relative path for the archive
 		relPath, err := filepath.Rel(w.Root(), filePath)
 		if err != nil {
@@ -99,14 +112,37 @@ func (b *BlockMap) Generate() error {
 	return nil
 }
 
+func (b *BlockMap) SetIgnorePaths(paths []string) {
+	b.IgnorePaths = uniqueStringSlice([]string{}, paths)
+}
+
+func (b *BlockMap) AddIgnorePath(path string) {
+	b.IgnorePaths = uniqueStringSlice(b.IgnorePaths, []string{path})
+}
+
+func uniqueStringSlice(original, additions []string) []string {
+	unique := make(map[string]*struct{})
+	for _, p := range original {
+		unique[p] = &struct{}{}
+	}
+
+	for _, p := range additions {
+		unique[p] = &struct{}{}
+	}
+
+	var out []string
+	for p := range unique {
+		out = append(out, p)
+	}
+
+	return out
+}
+
 func (b *BlockMap) hashBlockMap() error {
-	//Make sure an archive exists
 	if b.Archive == nil {
 		return errors.New("blockmap: Attempted to hash null archive")
 	}
 
-	//TODO hash json
-	//Begin hashing blockmap gob
 	hash := sha512.New()
 	archiveJSON, err := json.Marshal(b.Archive)
 	if err != nil {
