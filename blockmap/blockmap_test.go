@@ -25,18 +25,20 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"strconv"
 	"testing"
 	"time"
 )
 
 var tmpDir string
+var tmpDirInfo []os.FileInfo
 
 func TestMain(m *testing.M) {
 	//Generate initial blockmap from the test root
 	tmpDir, _ = ioutil.TempDir(".", "test")
 	cwd, _ := os.Getwd()
-	tmpDir = cwd + string(os.PathSeparator) + tmpDir
+	tmpDir = filepath.Join(cwd, tmpDir)
 	fmt.Println("tmpdir: " + tmpDir)
 
 	for i := 0; i < 2; i++ {
@@ -64,6 +66,11 @@ func TestMain(m *testing.M) {
 				panic(err)
 			}
 		}
+
+		tmpDirInfo, err = ioutil.ReadDir(tmpDir)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	result := m.Run()
@@ -85,6 +92,30 @@ func TestBlockMap_Generate(t *testing.T) {
 	b := New(tmpDir)
 	if err := b.Generate(); err != nil {
 		t.Error(err, tmpDir)
+	}
+
+	i := New(tmpDir)
+	ignoredPath := tmpDirInfo[0].Name()
+	i.AddIgnorePath(ignoredPath)
+	t.Log(i.IgnorePaths)
+	if err := i.Generate(); err != nil {
+		t.Error(err, tmpDir)
+	}
+
+	for path := range i.Archive {
+		if path == ignoredPath {
+			t.Error("archive includes ignored path")
+		}
+	}
+
+	j := New(tmpDir)
+	j.AddIgnorePath(tmpDir)
+	if err := i.Generate(); err != nil {
+		t.Error(err)
+	}
+
+	if len(j.Archive) > 0 {
+		t.Error("expected empty archive ignoring root directory")
 	}
 }
 
