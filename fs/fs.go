@@ -39,7 +39,12 @@ type FsErr struct {
 
 func (fe *FsErr) Unwrap() error { return fe.Err }
 
-func (fe *FsErr) Error() string { return "fs: " + fe.Error() + " " + fe.Path }
+func (fe *FsErr) Error() string {
+	if fe.Err != nil {
+		return "fs: " + fe.Err.Error() + fe.Path
+	}
+	return "fs: failed for " + fe.Path
+}
 
 //ErrNullPath is returned when fs is given an empty path string
 var ErrNullPath = errors.New("fs: failed to hash null path")
