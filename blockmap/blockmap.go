@@ -48,13 +48,20 @@ type BlockMap struct {
 	RootHash    []byte                `json:"rootHash"`
 	Root        string                `json:"root"`
 	IgnorePaths []string              `json:"ignorePaths"`
+	AutoIgnore  bool                  `json:"autoIgnore"`
 }
+
+type IgnoredPathErr struct {
+	Paths []string
+}
+
+func (ip *IgnoredPathErr) Error() string { return strings.Join(ip.Paths, " ,") }
 
 //New returns a new BlockMap initialized at the provided root
 func New(root string) *BlockMap {
 	//Initialize map and assign blockmap root
 	rootMap := make(archivemap.ArchiveMap)
-	return &BlockMap{Archive: rootMap, RootHash: nil, Root: root}
+	return &BlockMap{Archive: rootMap, RootHash: nil, Root: root, AutoIgnore: false}
 }
 
 //Generate creates an archive of the provided archives root filesystem
@@ -75,6 +82,7 @@ func (b *BlockMap) Generate() error {
 		return false
 	}
 
+	var ips *IgnoredPathErr
 	//Iterate through all walked files
 	for _, filePath := range w.Archive() {
 		if ignoredPath(b.IgnorePaths, filePath) {
@@ -94,6 +102,19 @@ func (b *BlockMap) Generate() error {
 		//Get the hash for the file
 		fileHash, err := fs.HashFile(filePath)
 		if err != nil {
+			if err := errors.Unwrap(err); b.AutoIgnore && err != nil {
+				if os.IsPermission(err) {
+					b.AddIgnorePath(filePath)
+					if ips == nil {
+						ips = &IgnoredPathErr{
+							Paths: []string{filePath},
+						}
+					} else {
+						ips.Paths = append(ips.Paths, filePath)
+					}
+					continue
+				}
+			}
 			return errors.Wrap(err, "BlockMap: failed to hash "+filePath)
 		}
 
@@ -109,13 +130,18 @@ func (b *BlockMap) Generate() error {
 		return errors.Wrap(err, "blockmap: failed to generate block map")
 	}
 
+	if ips != nil && len(ips.Paths) > 0 {
+		return ips
+	}
 	return nil
 }
 
+// SetIgnorePaths sets a list of paths to ignore in blockmap generation
 func (b *BlockMap) SetIgnorePaths(paths []string) {
 	b.IgnorePaths = uniqueStringSlice([]string{}, paths)
 }
 
+// AddIgnorePath adds a path to ignore during blockmap generation
 func (b *BlockMap) AddIgnorePath(path string) {
 	b.IgnorePaths = uniqueStringSlice(b.IgnorePaths, []string{path})
 }
