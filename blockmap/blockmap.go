@@ -49,19 +49,23 @@ type BlockMap struct {
 	Root        string                `json:"root"`
 	IgnorePaths []string              `json:"ignorePaths"`
 	AutoIgnore  bool                  `json:"autoIgnore"`
+	FailOnError bool                  `json:"failOnError"`
 }
 
-type IgnoredPathErr struct {
-	Paths []string
+type GenerationError struct {
+	IgnoredPaths []string
+	ErroredPaths []string
 }
 
-func (ip *IgnoredPathErr) Error() string { return strings.Join(ip.Paths, " ,") }
+func (ge *GenerationError) Error() string {
+	return "blockmap: generation report\n\tignored: [" + strings.Join(ge.IgnoredPaths, ", ") + "]\n\terrored: [" + strings.Join(ge.ErroredPaths, ", ") + "]"
+}
 
 //New returns a new BlockMap initialized at the provided root
 func New(root string) *BlockMap {
 	//Initialize map and assign blockmap root
 	rootMap := make(archivemap.ArchiveMap)
-	return &BlockMap{Archive: rootMap, RootHash: nil, Root: root, AutoIgnore: false}
+	return &BlockMap{Archive: rootMap, RootHash: nil, Root: root, AutoIgnore: false, FailOnError: true}
 }
 
 //Generate creates an archive of the provided archives root filesystem
@@ -82,7 +86,7 @@ func (b *BlockMap) Generate() error {
 		return false
 	}
 
-	var ips *IgnoredPathErr
+	var gerr *GenerationError
 	//Iterate through all walked files
 	for _, filePath := range w.Archive() {
 		if ignoredPath(b.IgnorePaths, filePath) {
@@ -105,15 +109,32 @@ func (b *BlockMap) Generate() error {
 			if err := errors.Unwrap(err); b.AutoIgnore && err != nil {
 				if os.IsPermission(err) {
 					b.AddIgnorePath(filePath)
-					if ips == nil {
-						ips = &IgnoredPathErr{
-							Paths: []string{filePath},
+					if gerr == nil {
+						gerr = &GenerationError{
+							IgnoredPaths: []string{filePath},
 						}
 					} else {
-						ips.Paths = append(ips.Paths, filePath)
+						gerr.IgnoredPaths = append(gerr.IgnoredPaths, filePath)
+					}
+				} else if !b.FailOnError {
+					if gerr == nil {
+						gerr = &GenerationError{
+							ErroredPaths: []string{filePath},
+						}
+					} else {
+						gerr.ErroredPaths = append(gerr.ErroredPaths, filePath)
 					}
 					continue
 				}
+			} else if !b.FailOnError {
+				if gerr == nil {
+					gerr = &GenerationError{
+						ErroredPaths: []string{filePath},
+					}
+				} else {
+					gerr.ErroredPaths = append(gerr.ErroredPaths, filePath)
+				}
+				continue
 			}
 			return errors.Wrap(err, "BlockMap: failed to hash "+filePath)
 		}
@@ -130,8 +151,8 @@ func (b *BlockMap) Generate() error {
 		return errors.Wrap(err, "blockmap: failed to generate block map")
 	}
 
-	if ips != nil && len(ips.Paths) > 0 {
-		return ips
+	if gerr != nil && (len(gerr.IgnoredPaths) > 0 || len(gerr.ErroredPaths) > 0) {
+		return gerr
 	}
 	return nil
 }
