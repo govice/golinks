@@ -100,7 +100,7 @@ It can be useful to specify enviornment variables for testing
 
 
 ## License
-Copyright (C) 2019-2020 Kevin Gentile & other contributors (see AUTHORS.md)
+Copyright (C) 2017-2020 Kevin Gentile & other contributors (see [AUTHORS.md](./AUTHORS.md))
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published
