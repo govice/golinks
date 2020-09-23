@@ -2,7 +2,6 @@
 [![CircleCI](https://circleci.com/gh/govice/golinks/tree/master.svg?style=svg)](https://circleci.com/gh/govice/golinks/tree/master)
 [![codecov](https://codecov.io/gh/govice/golinks/branch/master/graph/badge.svg)](https://codecov.io/gh/govice/golinks)
 [![GoDoc](https://godoc.org/github.com/govice/golinks?status.svg)](https://godoc.org/github.com/govice/golinks)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 
 
@@ -87,14 +86,31 @@ It can be useful to specify enviornment variables for testing
     ```
 
 
-    ### GoDoc
+## GoDoc
 
-#### [block](https://godoc.org/github.com/govice/goLinks/block)
+* [block](https://godoc.org/github.com/govice/goLinks/block)
 
-#### [blockchain](https://godoc.org/github.com/govice/goLinks/blockchain)
+* [blockchain](https://godoc.org/github.com/govice/goLinks/blockchain)
 
-#### [blockmap](https://godoc.org/github.com/govice/goLinks/blockmap)
+* [blockmap](https://godoc.org/github.com/govice/goLinks/blockmap)
 
-#### [fs](https://godoc.org/github.com/govice/goLinks/fs)
+* [fs](https://godoc.org/github.com/govice/goLinks/fs)
 
-#### [walker](https://godoc.org/github.com/govice/goLinks/walker)
+* [walker](https://godoc.org/github.com/govice/goLinks/walker)
+
+
+## License
+Copyright (C) 2019-2020 Kevin Gentile & other contributors (see AUTHORS.md)
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
