@@ -2,7 +2,6 @@ package fs
 
 import (
 	"crypto/sha512"
-	"io/ioutil"
 	"os"
 
 	"github.com/govice/golinks/walker"
@@ -14,6 +13,11 @@ import (
 	"io"
 
 	"github.com/pkg/errors"
+)
+
+const (
+	// T_UNBOUND indicates an unbound throttle
+	T_UNBOUND int = -1
 )
 
 type FsErr struct {
@@ -33,14 +37,35 @@ func (fe *FsErr) Error() string {
 //ErrNullPath is returned when fs is given an empty path string
 var ErrNullPath = errors.New("fs: failed to hash null path")
 
+var ErrInvalidBufferSize = errors.New("fs: invalid buffer size")
+
 //HashFile returns a sha512 hash of the file at the provided path
 func HashFile(path string) ([]byte, error) {
+	return throttleHashHelper(path, T_UNBOUND)
+}
+
+// ThrottleHashFile returns a hash for a file throttling with bufferSize bytes.
+// a neagative or zero size buffer will be evaluated as T_UNBOUND
+func ThrottleHashFile(path string, bufferSize int) ([]byte, error) {
+	return throttleHashHelper(path, bufferSize)
+}
+
+func throttleHashHelper(path string, bufferSize int) ([]byte, error) {
 	//If path is null return
 	if path == "" {
 		return nil, ErrNullPath
 	}
-	//Open open and verify file in path
-	fileBytes, err := ioutil.ReadFile(path)
+
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, &FsErr{
+			Path: path,
+			Err:  err,
+		}
+	}
+	defer f.Close()
+
+	fi, err := f.Stat()
 	if err != nil {
 		return nil, &FsErr{
 			Path: path,
@@ -48,13 +73,38 @@ func HashFile(path string) ([]byte, error) {
 		}
 	}
 
+	var readBuffer []byte
+	// unbound reads will load the file into memory and hash
+	if bufferSize <= 0 {
+		readBuffer = make([]byte, fi.Size())
+	} else {
+		readBuffer = make([]byte, bufferSize)
+	}
+
 	fileHash := sha512.New()
-	if _, err := fileHash.Write(fileBytes); err != nil {
-		return nil, &FsErr{
-			Path: path,
-			Err:  err,
+	for {
+		bytesRead, rerr := f.Read(readBuffer)
+		if rerr != nil && !errors.Is(rerr, io.EOF) {
+			return nil, &FsErr{
+				Path: path,
+				Err:  rerr,
+			}
+		}
+
+		if bytesRead > 0 {
+			if _, err := fileHash.Write(readBuffer[:bytesRead]); err != nil {
+				return nil, &FsErr{
+					Path: path,
+					Err:  err,
+				}
+			}
+		}
+
+		if errors.Is(rerr, io.EOF) {
+			break
 		}
 	}
+
 	return fileHash.Sum(nil), nil
 }
 

@@ -78,6 +78,13 @@ func TestBlockMap_Generate(t *testing.T) {
 		t.Error(err, tmpDir)
 	}
 
+	// add io throttle
+	b.IOThrottleSize = 1024
+	if err := b.Generate(); err != nil {
+		t.Error(err, tmpDir)
+	}
+
+	// test ignored paths
 	i := New(tmpDir)
 	ignoredPath := tmpDirInfo[0].Name()
 	i.AddIgnorePath(ignoredPath)
