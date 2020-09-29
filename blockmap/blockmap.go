@@ -34,6 +34,9 @@ type BlockMap struct {
 	IgnorePaths []string              `json:"ignorePaths"`
 	AutoIgnore  bool                  `json:"autoIgnore"`
 	FailOnError bool                  `json:"failOnError"`
+
+	// Throttle size in bytes
+	IOThrottleSize int
 }
 
 type GenerationError struct {
@@ -49,7 +52,7 @@ func (ge *GenerationError) Error() string {
 func New(root string) *BlockMap {
 	//Initialize map and assign blockmap root
 	rootMap := make(archivemap.ArchiveMap)
-	return &BlockMap{Archive: rootMap, RootHash: nil, Root: root, AutoIgnore: false, FailOnError: true}
+	return &BlockMap{Archive: rootMap, RootHash: nil, Root: root, AutoIgnore: false, FailOnError: true, IOThrottleSize: fs.T_UNBOUND}
 }
 
 //Generate creates an archive of the provided archives root filesystem
@@ -88,7 +91,7 @@ func (b *BlockMap) Generate() error {
 		}
 
 		//Get the hash for the file
-		fileHash, err := fs.HashFile(filePath)
+		fileHash, err := fs.ThrottleHashFile(filePath, b.IOThrottleSize)
 		if err != nil {
 			if err := errors.Unwrap(err); b.AutoIgnore && err != nil {
 				if os.IsPermission(err) {
