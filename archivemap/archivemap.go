@@ -32,8 +32,12 @@ func (am ArchiveMap) MarshalJSON() ([]byte, error) {
 			return nil, err
 		}
 
-		escapedKey := strings.Replace(key, "\\", "/", -1)
+		escapedKey := strings.Replace(key, "\n", "", -1)
+		escapedKey = strings.Replace(escapedKey, "\r", "", -1)
+		escapedKey = strings.Replace(escapedKey, "\\", "/", -1)
+
 		entry := fmt.Sprintf("\"%s\":%s", escapedKey, jsonValue)
+		fmt.Println(entry)
 		if _, err := buffer.WriteString(entry); err != nil {
 			return nil, err
 		}
