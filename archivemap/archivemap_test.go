@@ -3,6 +3,7 @@ package archivemap
 import (
 	"bytes"
 	"encoding/base64"
+	"encoding/json"
 	"os"
 	"testing"
 )
@@ -38,10 +39,33 @@ func Test_MarshalJSON(t *testing.T) {
 		archivemapJSON, err := am.MarshalJSON()
 		if err != nil {
 			t.Error(err)
+			t.FailNow()
+		}
+
+		archivemapJSON2, err := json.Marshal(am)
+		if err != nil {
+			t.Error(err)
+			t.FailNow()
 		}
 
 		if !bytes.Equal(archivemapJSON, []byte(goldenArchiveJSON2)) {
 			t.Error("Marshal Ordering failed " + string(archivemapJSON) + " | " + goldenArchiveJSON2)
+			t.FailNow()
+		}
+
+		if !bytes.Equal(archivemapJSON2, []byte(goldenArchiveJSON2)) {
+			t.Error("Marshal Ordering failed " + string(archivemapJSON) + " | " + goldenArchiveJSON2)
+			t.FailNow()
 		}
 	}
+
+	am := ArchiveMap{
+		"C:" + ps + "User" + ps + "folder1\\n\r": a1,
+		"C:" + ps + "User" + ps + "folder2":      []byte("\n\r"),
+	}
+
+	if _, err := json.Marshal(am); err != nil {
+		t.Error("Marshal character sanitization failed", err)
+	}
+
 }
